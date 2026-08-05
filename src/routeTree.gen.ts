@@ -10,33 +10,89 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CadastroUsuarioRouteImport } from './routes/cadastro-usuario'
+import { Route as EquipamentosIndexRouteImport } from './routes/equipamentos.index'
+import { Route as EquipamentosIdRouteImport } from './routes/equipamentos.$id'
+import { Route as EquipamentosNovoRouteImport } from './routes/equipamentos.novo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastroUsuarioRoute = CadastroUsuarioRouteImport.update({
+  id: '/cadastro-usuario',
+  path: '/cadastro-usuario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EquipamentosIndexRoute = EquipamentosIndexRouteImport.update({
+  id: '/equipamentos/',
+  path: '/equipamentos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EquipamentosIdRoute = EquipamentosIdRouteImport.update({
+  id: '/equipamentos/$id',
+  path: '/equipamentos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EquipamentosNovoRoute = EquipamentosNovoRouteImport.update({
+  id: '/equipamentos/novo',
+  path: '/equipamentos/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cadastro-usuario': typeof CadastroUsuarioRoute
+  '/equipamentos/$id': typeof EquipamentosIdRoute
+  '/equipamentos/novo': typeof EquipamentosNovoRoute
+  '/equipamentos/': typeof EquipamentosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cadastro-usuario': typeof CadastroUsuarioRoute
+  '/equipamentos/$id': typeof EquipamentosIdRoute
+  '/equipamentos/novo': typeof EquipamentosNovoRoute
+  '/equipamentos': typeof EquipamentosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cadastro-usuario': typeof CadastroUsuarioRoute
+  '/equipamentos/$id': typeof EquipamentosIdRoute
+  '/equipamentos/novo': typeof EquipamentosNovoRoute
+  '/equipamentos/': typeof EquipamentosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/cadastro-usuario'
+    | '/equipamentos/$id'
+    | '/equipamentos/novo'
+    | '/equipamentos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/cadastro-usuario'
+    | '/equipamentos/$id'
+    | '/equipamentos/novo'
+    | '/equipamentos'
+  id:
+    | '__root__'
+    | '/'
+    | '/cadastro-usuario'
+    | '/equipamentos/$id'
+    | '/equipamentos/novo'
+    | '/equipamentos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CadastroUsuarioRoute: typeof CadastroUsuarioRoute
+  EquipamentosIdRoute: typeof EquipamentosIdRoute
+  EquipamentosNovoRoute: typeof EquipamentosNovoRoute
+  EquipamentosIndexRoute: typeof EquipamentosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +104,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastro-usuario': {
+      id: '/cadastro-usuario'
+      path: '/cadastro-usuario'
+      fullPath: '/cadastro-usuario'
+      preLoaderRoute: typeof CadastroUsuarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/equipamentos/': {
+      id: '/equipamentos/'
+      path: '/equipamentos'
+      fullPath: '/equipamentos/'
+      preLoaderRoute: typeof EquipamentosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/equipamentos/$id': {
+      id: '/equipamentos/$id'
+      path: '/equipamentos/$id'
+      fullPath: '/equipamentos/$id'
+      preLoaderRoute: typeof EquipamentosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/equipamentos/novo': {
+      id: '/equipamentos/novo'
+      path: '/equipamentos/novo'
+      fullPath: '/equipamentos/novo'
+      preLoaderRoute: typeof EquipamentosNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CadastroUsuarioRoute: CadastroUsuarioRoute,
+  EquipamentosIdRoute: EquipamentosIdRoute,
+  EquipamentosNovoRoute: EquipamentosNovoRoute,
+  EquipamentosIndexRoute: EquipamentosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
