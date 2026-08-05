@@ -1,24 +1,101 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { Cog } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Entrar — MaqControl | Gestão de Equipamentos" },
+      {
+        name: "description",
+        content:
+          "Acesse o MaqControl para gerenciar equipamentos, patrimônio, status e responsáveis da sua operação.",
+      },
+      { property: "og:title", content: "Entrar — MaqControl" },
+      {
+        property: "og:description",
+        content: "Acesso ao sistema de gestão de equipamentos e manutenções.",
+      },
+    ],
+  }),
+  component: TelaLogin,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function TelaLogin() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState("");
+
+  const entrar = (evento: React.FormEvent) => {
+    evento.preventDefault();
+    if (!email.trim() || !senha.trim()) {
+      setErro("Informe o e-mail e a senha para continuar.");
+      return;
+    }
+    setErro("");
+    navigate({ to: "/equipamentos" });
+  };
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="flex min-h-screen flex-col justify-center bg-secondary px-4 py-12">
+      <div className="mx-auto w-full max-w-md">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded bg-primary text-primary-foreground">
+            <Cog className="h-7 w-7" aria-hidden="true" />
+          </span>
+          <h1 className="mt-4 font-display text-4xl uppercase tracking-wide text-foreground">
+            MaqControl
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Gestão de Equipamentos e Manutenções
+          </p>
+        </div>
+
+        <form
+          onSubmit={entrar}
+          className="space-y-5 rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8"
+        >
+          <div className="space-y-2">
+            <Label htmlFor="email">E-mail ou usuário</Label>
+            <Input
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu.nome@empresa.com.br"
+              autoComplete="username"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="senha">Senha</Label>
+            <Input
+              id="senha"
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="current-password"
+            />
+          </div>
+
+          {erro ? <p className="text-sm text-destructive">{erro}</p> : null}
+
+          <Button type="submit" className="w-full">
+            Entrar
+          </Button>
+
+          <p className="text-center text-sm text-muted-foreground">
+            Ainda não tem conta?{" "}
+            <Link to="/cadastro-usuario" className="font-medium text-primary hover:underline">
+              Cadastre-se
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }
