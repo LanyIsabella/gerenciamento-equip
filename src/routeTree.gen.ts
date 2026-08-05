@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroUsuarioRouteImport } from './routes/cadastro-usuario'
 import { Route as EquipamentosIndexRouteImport } from './routes/equipamentos.index'
+import { Route as EquipamentosNovoRouteImport } from './routes/equipamentos.novo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,34 +29,48 @@ const EquipamentosIndexRoute = EquipamentosIndexRouteImport.update({
   path: '/equipamentos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EquipamentosNovoRoute = EquipamentosNovoRouteImport.update({
+  id: '/equipamentos/novo',
+  path: '/equipamentos/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastro-usuario': typeof CadastroUsuarioRoute
+  '/equipamentos/novo': typeof EquipamentosNovoRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro-usuario': typeof CadastroUsuarioRoute
+  '/equipamentos/novo': typeof EquipamentosNovoRoute
   '/equipamentos': typeof EquipamentosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cadastro-usuario': typeof CadastroUsuarioRoute
+  '/equipamentos/novo': typeof EquipamentosNovoRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cadastro-usuario' | '/equipamentos/'
+  fullPaths: '/' | '/cadastro-usuario' | '/equipamentos/novo' | '/equipamentos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cadastro-usuario' | '/equipamentos'
-  id: '__root__' | '/' | '/cadastro-usuario' | '/equipamentos/'
+  to: '/' | '/cadastro-usuario' | '/equipamentos/novo' | '/equipamentos'
+  id:
+    | '__root__'
+    | '/'
+    | '/cadastro-usuario'
+    | '/equipamentos/novo'
+    | '/equipamentos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CadastroUsuarioRoute: typeof CadastroUsuarioRoute
+  EquipamentosNovoRoute: typeof EquipamentosNovoRoute
   EquipamentosIndexRoute: typeof EquipamentosIndexRoute
 }
 
@@ -82,12 +97,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EquipamentosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/equipamentos/novo': {
+      id: '/equipamentos/novo'
+      path: '/equipamentos/novo'
+      fullPath: '/equipamentos/novo'
+      preLoaderRoute: typeof EquipamentosNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CadastroUsuarioRoute: CadastroUsuarioRoute,
+  EquipamentosNovoRoute: EquipamentosNovoRoute,
   EquipamentosIndexRoute: EquipamentosIndexRoute,
 }
 export const routeTree = rootRouteImport

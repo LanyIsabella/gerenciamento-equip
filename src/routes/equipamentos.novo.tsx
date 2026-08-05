@@ -46,12 +46,13 @@ function TelaCadastroEquipamento() {
   const salvar = (evento: React.FormEvent) => {
     evento.preventDefault();
     const novosErros: Record<string, string> = {};
-    if (!nome.trim()) novosErros.nome = "Informe o nome do equipamento.";
-    if (!patrimonio.trim()) novosErros.patrimonio = "Informe o patrimônio.";
-    if (!dataAquisicao) novosErros.data_aquisicao = "Informe a data de aquisição.";
-    if (!idCategoria) novosErros.id_categoria = "Selecione a categoria.";
-    if (!status) novosErros.status = "Selecione o status.";
-    if (!idResponsavel) novosErros.id_responsavel = "Selecione o responsável.";
+    if (!nome.trim()) novosErros["nome"] = "Informe o nome do equipamento.";
+    if (!patrimonio.trim()) novosErros["patrimonio"] = "Informe o patrimônio.";
+    if (!dataAquisicao) novosErros["data_aquisicao"] = "Informe a data de aquisição.";
+    if (!idCategoria) novosErros["id_categoria"] = "Selecione a categoria.";
+    if (!status) novosErros["status"] = "Selecione o status.";
+    if (!idResponsavel) novosErros["id_responsavel"] = "Selecione o responsável.";
+
 
     setErros(novosErros);
     if (Object.keys(novosErros).length > 0) return;
