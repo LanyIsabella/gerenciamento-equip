@@ -10,7 +10,7 @@ import {
   podeGerenciarEquipamentos,
 } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/equipamentos/$id")({
+export const Route = createFileRoute("/equipamentos/$id/")({
   head: () => ({
     meta: [
       { title: "Detalhes do Equipamento — EquipControl" },

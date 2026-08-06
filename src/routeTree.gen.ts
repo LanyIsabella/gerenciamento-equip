@@ -15,6 +15,8 @@ import { Route as InicioRouteImport } from './routes/inicio'
 import { Route as EquipamentosIndexRouteImport } from './routes/equipamentos.index'
 import { Route as EquipamentosIdRouteImport } from './routes/equipamentos.$id'
 import { Route as EquipamentosNovoRouteImport } from './routes/equipamentos.novo'
+import { Route as EquipamentosIdIndexRouteImport } from './routes/equipamentos.$id.index'
+import { Route as EquipamentosIdEditarRouteImport } from './routes/equipamentos.$id.editar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,31 +48,46 @@ const EquipamentosNovoRoute = EquipamentosNovoRouteImport.update({
   path: '/equipamentos/novo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EquipamentosIdIndexRoute = EquipamentosIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EquipamentosIdRoute,
+} as any)
+const EquipamentosIdEditarRoute = EquipamentosIdEditarRouteImport.update({
+  id: '/editar',
+  path: '/editar',
+  getParentRoute: () => EquipamentosIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastro-usuario': typeof CadastroUsuarioRoute
   '/inicio': typeof InicioRoute
-  '/equipamentos/$id': typeof EquipamentosIdRoute
+  '/equipamentos/$id': typeof EquipamentosIdRouteWithChildren
   '/equipamentos/novo': typeof EquipamentosNovoRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
+  '/equipamentos/$id/editar': typeof EquipamentosIdEditarRoute
+  '/equipamentos/$id/': typeof EquipamentosIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro-usuario': typeof CadastroUsuarioRoute
   '/inicio': typeof InicioRoute
-  '/equipamentos/$id': typeof EquipamentosIdRoute
   '/equipamentos/novo': typeof EquipamentosNovoRoute
   '/equipamentos': typeof EquipamentosIndexRoute
+  '/equipamentos/$id/editar': typeof EquipamentosIdEditarRoute
+  '/equipamentos/$id': typeof EquipamentosIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cadastro-usuario': typeof CadastroUsuarioRoute
   '/inicio': typeof InicioRoute
-  '/equipamentos/$id': typeof EquipamentosIdRoute
+  '/equipamentos/$id': typeof EquipamentosIdRouteWithChildren
   '/equipamentos/novo': typeof EquipamentosNovoRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
+  '/equipamentos/$id/editar': typeof EquipamentosIdEditarRoute
+  '/equipamentos/$id/': typeof EquipamentosIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,14 +98,17 @@ export interface FileRouteTypes {
     | '/equipamentos/$id'
     | '/equipamentos/novo'
     | '/equipamentos/'
+    | '/equipamentos/$id/editar'
+    | '/equipamentos/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/cadastro-usuario'
     | '/inicio'
-    | '/equipamentos/$id'
     | '/equipamentos/novo'
     | '/equipamentos'
+    | '/equipamentos/$id/editar'
+    | '/equipamentos/$id'
   id:
     | '__root__'
     | '/'
@@ -97,13 +117,15 @@ export interface FileRouteTypes {
     | '/equipamentos/$id'
     | '/equipamentos/novo'
     | '/equipamentos/'
+    | '/equipamentos/$id/editar'
+    | '/equipamentos/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CadastroUsuarioRoute: typeof CadastroUsuarioRoute
   InicioRoute: typeof InicioRoute
-  EquipamentosIdRoute: typeof EquipamentosIdRoute
+  EquipamentosIdRoute: typeof EquipamentosIdRouteWithChildren
   EquipamentosNovoRoute: typeof EquipamentosNovoRoute
   EquipamentosIndexRoute: typeof EquipamentosIndexRoute
 }
@@ -152,14 +174,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EquipamentosNovoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/equipamentos/$id/': {
+      id: '/equipamentos/$id/'
+      path: '/'
+      fullPath: '/equipamentos/$id/'
+      preLoaderRoute: typeof EquipamentosIdIndexRouteImport
+      parentRoute: typeof EquipamentosIdRoute
+    }
+    '/equipamentos/$id/editar': {
+      id: '/equipamentos/$id/editar'
+      path: '/editar'
+      fullPath: '/equipamentos/$id/editar'
+      preLoaderRoute: typeof EquipamentosIdEditarRouteImport
+      parentRoute: typeof EquipamentosIdRoute
+    }
   }
 }
+
+interface EquipamentosIdRouteChildren {
+  EquipamentosIdEditarRoute: typeof EquipamentosIdEditarRoute
+  EquipamentosIdIndexRoute: typeof EquipamentosIdIndexRoute
+}
+
+const EquipamentosIdRouteChildren: EquipamentosIdRouteChildren = {
+  EquipamentosIdEditarRoute: EquipamentosIdEditarRoute,
+  EquipamentosIdIndexRoute: EquipamentosIdIndexRoute,
+}
+
+const EquipamentosIdRouteWithChildren = EquipamentosIdRoute._addFileChildren(
+  EquipamentosIdRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CadastroUsuarioRoute: CadastroUsuarioRoute,
   InicioRoute: InicioRoute,
-  EquipamentosIdRoute: EquipamentosIdRoute,
+  EquipamentosIdRoute: EquipamentosIdRouteWithChildren,
   EquipamentosNovoRoute: EquipamentosNovoRoute,
   EquipamentosIndexRoute: EquipamentosIndexRoute,
 }
