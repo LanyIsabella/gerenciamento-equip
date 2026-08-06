@@ -1,3 +1,7 @@
+export type Perfil = "Administrador" | "Técnico" | "Gestor" | "Operador";
+
+export const PERFIS: Perfil[] = ["Administrador", "Técnico", "Gestor", "Operador"];
+
 export type Equipamento = {
   id_equipamento: number;
   nome: string;
@@ -8,8 +12,20 @@ export type Equipamento = {
   id_responsavel: number;
 };
 
+export type Manutencao = {
+  id: number;
+  equipamento_id: number;
+  descricao: string;
+  tipo: TipoManutencao;
+  status: StatusManutencao;
+  data_abertura: string;
+  data_conclusao: string;
+  custo: number;
+  id_responsavel: number;
+};
+
 export type Categoria = { id: number; nome: string };
-export type Usuario = { id: number; nome: string };
+export type Usuario = { id: number; nome: string; email: string; perfil: Perfil };
 
 export const CATEGORIAS: Categoria[] = [
   { id: 1, nome: "Máquinas Pesadas" },
@@ -19,14 +35,21 @@ export const CATEGORIAS: Categoria[] = [
   { id: 5, nome: "Instrumentos de Medição" },
 ];
 
-export const USUARIOS: Usuario[] = [
-  { id: 1, nome: "Carlos Almeida" },
-  { id: 2, nome: "Fernanda Souza" },
-  { id: 3, nome: "Ricardo Menezes" },
-  { id: 4, nome: "Juliana Prado" },
+export const USUARIOS_INICIAIS: Usuario[] = [
+  { id: 1, nome: "Carlos Almeida", email: "carlos.almeida@empresa.com", perfil: "Administrador" },
+  { id: 2, nome: "Fernanda Souza", email: "fernanda.souza@empresa.com", perfil: "Gestor" },
+  { id: 3, nome: "Ricardo Menezes", email: "ricardo.menezes@empresa.com", perfil: "Técnico" },
+  { id: 4, nome: "Juliana Prado", email: "juliana.prado@empresa.com", perfil: "Técnico" },
+  { id: 5, nome: "Marcos Vieira", email: "marcos.vieira@empresa.com", perfil: "Operador" },
 ];
 
 export const STATUS_OPCOES = ["Ativo", "Em Manutenção", "Inativo"] as const;
+
+export const TIPOS_MANUTENCAO = ["Preventiva", "Corretiva"] as const;
+export type TipoManutencao = (typeof TIPOS_MANUTENCAO)[number];
+
+export const STATUS_MANUTENCAO = ["Pendente", "Em Andamento", "Concluída"] as const;
+export type StatusManutencao = (typeof STATUS_MANUTENCAO)[number];
 
 export const EQUIPAMENTOS_INICIAIS: Equipamento[] = [
   {
@@ -94,13 +117,68 @@ export const EQUIPAMENTOS_INICIAIS: Equipamento[] = [
   },
 ];
 
+export const MANUTENCOES_INICIAIS: Manutencao[] = [
+  {
+    id: 1,
+    equipamento_id: 2,
+    descricao: "Troca de filtros e revisão do sistema de pressão.",
+    tipo: "Preventiva",
+    status: "Em Andamento",
+    data_abertura: "2026-07-28",
+    data_conclusao: "",
+    custo: 1250.5,
+    id_responsavel: 3,
+  },
+  {
+    id: 2,
+    equipamento_id: 7,
+    descricao: "Vazamento de óleo na unidade hidráulica.",
+    tipo: "Corretiva",
+    status: "Pendente",
+    data_abertura: "2026-08-03",
+    data_conclusao: "",
+    custo: 0,
+    id_responsavel: 4,
+  },
+  {
+    id: 3,
+    equipamento_id: 1,
+    descricao: "Calibração do eixo Z e lubrificação das guias.",
+    tipo: "Preventiva",
+    status: "Concluída",
+    data_abertura: "2026-06-10",
+    data_conclusao: "2026-06-14",
+    custo: 890,
+    id_responsavel: 3,
+  },
+  {
+    id: 4,
+    equipamento_id: 4,
+    descricao: "Substituição de fonte redundante com falha.",
+    tipo: "Corretiva",
+    status: "Concluída",
+    data_abertura: "2026-05-02",
+    data_conclusao: "2026-05-03",
+    custo: 2400,
+    id_responsavel: 4,
+  },
+];
+
 export const nomeCategoria = (id: number) =>
   CATEGORIAS.find((c) => c.id === id)?.nome ?? "—";
 
-export const nomeUsuario = (id: number) =>
-  USUARIOS.find((u) => u.id === id)?.nome ?? "—";
-
 export const formatarData = (iso: string) => {
+  if (!iso) return "—";
   const [ano, mes, dia] = iso.split("-");
   return dia && mes && ano ? `${dia}/${mes}/${ano}` : iso;
 };
+
+export const formatarMoeda = (valor: number) =>
+  valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+/** Permissões por perfil */
+export const podeGerenciarEquipamentos = (perfil: Perfil) =>
+  perfil === "Administrador" || perfil === "Gestor";
+
+export const podeGerenciarManutencoes = (perfil: Perfil) =>
+  perfil === "Administrador" || perfil === "Técnico";
