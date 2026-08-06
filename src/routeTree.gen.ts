@@ -11,9 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroUsuarioRouteImport } from './routes/cadastro-usuario'
+import { Route as InicioRouteImport } from './routes/inicio'
 import { Route as EquipamentosIndexRouteImport } from './routes/equipamentos.index'
-import { Route as EquipamentosIdRouteImport } from './routes/equipamentos.$id'
 import { Route as EquipamentosNovoRouteImport } from './routes/equipamentos.novo'
+import { Route as ManutencoesIndexRouteImport } from './routes/manutencoes.index'
+import { Route as ManutencoesNovaRouteImport } from './routes/manutencoes.nova'
+import { Route as EquipamentosIdIndexRouteImport } from './routes/equipamentos.$id.index'
+import { Route as EquipamentosIdEditarRouteImport } from './routes/equipamentos.$id.editar'
+import { Route as ManutencoesIdIndexRouteImport } from './routes/manutencoes.$id.index'
+import { Route as ManutencoesIdEditarRouteImport } from './routes/manutencoes.$id.editar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -25,14 +31,14 @@ const CadastroUsuarioRoute = CadastroUsuarioRouteImport.update({
   path: '/cadastro-usuario',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InicioRoute = InicioRouteImport.update({
+  id: '/inicio',
+  path: '/inicio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EquipamentosIndexRoute = EquipamentosIndexRouteImport.update({
   id: '/equipamentos/',
   path: '/equipamentos/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EquipamentosIdRoute = EquipamentosIdRouteImport.update({
-  id: '/equipamentos/$id',
-  path: '/equipamentos/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EquipamentosNovoRoute = EquipamentosNovoRouteImport.update({
@@ -40,59 +46,131 @@ const EquipamentosNovoRoute = EquipamentosNovoRouteImport.update({
   path: '/equipamentos/novo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManutencoesIndexRoute = ManutencoesIndexRouteImport.update({
+  id: '/manutencoes/',
+  path: '/manutencoes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManutencoesNovaRoute = ManutencoesNovaRouteImport.update({
+  id: '/manutencoes/nova',
+  path: '/manutencoes/nova',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EquipamentosIdIndexRoute = EquipamentosIdIndexRouteImport.update({
+  id: '/equipamentos/$id/',
+  path: '/equipamentos/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EquipamentosIdEditarRoute = EquipamentosIdEditarRouteImport.update({
+  id: '/equipamentos/$id/editar',
+  path: '/equipamentos/$id/editar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManutencoesIdIndexRoute = ManutencoesIdIndexRouteImport.update({
+  id: '/manutencoes/$id/',
+  path: '/manutencoes/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManutencoesIdEditarRoute = ManutencoesIdEditarRouteImport.update({
+  id: '/manutencoes/$id/editar',
+  path: '/manutencoes/$id/editar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastro-usuario': typeof CadastroUsuarioRoute
-  '/equipamentos/$id': typeof EquipamentosIdRoute
+  '/inicio': typeof InicioRoute
   '/equipamentos/novo': typeof EquipamentosNovoRoute
+  '/manutencoes/nova': typeof ManutencoesNovaRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
+  '/manutencoes/': typeof ManutencoesIndexRoute
+  '/equipamentos/$id/editar': typeof EquipamentosIdEditarRoute
+  '/manutencoes/$id/editar': typeof ManutencoesIdEditarRoute
+  '/equipamentos/$id/': typeof EquipamentosIdIndexRoute
+  '/manutencoes/$id/': typeof ManutencoesIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro-usuario': typeof CadastroUsuarioRoute
-  '/equipamentos/$id': typeof EquipamentosIdRoute
+  '/inicio': typeof InicioRoute
   '/equipamentos/novo': typeof EquipamentosNovoRoute
+  '/manutencoes/nova': typeof ManutencoesNovaRoute
   '/equipamentos': typeof EquipamentosIndexRoute
+  '/manutencoes': typeof ManutencoesIndexRoute
+  '/equipamentos/$id/editar': typeof EquipamentosIdEditarRoute
+  '/manutencoes/$id/editar': typeof ManutencoesIdEditarRoute
+  '/equipamentos/$id': typeof EquipamentosIdIndexRoute
+  '/manutencoes/$id': typeof ManutencoesIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cadastro-usuario': typeof CadastroUsuarioRoute
-  '/equipamentos/$id': typeof EquipamentosIdRoute
+  '/inicio': typeof InicioRoute
   '/equipamentos/novo': typeof EquipamentosNovoRoute
+  '/manutencoes/nova': typeof ManutencoesNovaRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
+  '/manutencoes/': typeof ManutencoesIndexRoute
+  '/equipamentos/$id/editar': typeof EquipamentosIdEditarRoute
+  '/manutencoes/$id/editar': typeof ManutencoesIdEditarRoute
+  '/equipamentos/$id/': typeof EquipamentosIdIndexRoute
+  '/manutencoes/$id/': typeof ManutencoesIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/cadastro-usuario'
-    | '/equipamentos/$id'
+    | '/inicio'
     | '/equipamentos/novo'
+    | '/manutencoes/nova'
     | '/equipamentos/'
+    | '/manutencoes/'
+    | '/equipamentos/$id/editar'
+    | '/manutencoes/$id/editar'
+    | '/equipamentos/$id/'
+    | '/manutencoes/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/cadastro-usuario'
-    | '/equipamentos/$id'
+    | '/inicio'
     | '/equipamentos/novo'
+    | '/manutencoes/nova'
     | '/equipamentos'
+    | '/manutencoes'
+    | '/equipamentos/$id/editar'
+    | '/manutencoes/$id/editar'
+    | '/equipamentos/$id'
+    | '/manutencoes/$id'
   id:
     | '__root__'
     | '/'
     | '/cadastro-usuario'
-    | '/equipamentos/$id'
+    | '/inicio'
     | '/equipamentos/novo'
+    | '/manutencoes/nova'
     | '/equipamentos/'
+    | '/manutencoes/'
+    | '/equipamentos/$id/editar'
+    | '/manutencoes/$id/editar'
+    | '/equipamentos/$id/'
+    | '/manutencoes/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CadastroUsuarioRoute: typeof CadastroUsuarioRoute
-  EquipamentosIdRoute: typeof EquipamentosIdRoute
+  InicioRoute: typeof InicioRoute
   EquipamentosNovoRoute: typeof EquipamentosNovoRoute
+  ManutencoesNovaRoute: typeof ManutencoesNovaRoute
   EquipamentosIndexRoute: typeof EquipamentosIndexRoute
+  ManutencoesIndexRoute: typeof ManutencoesIndexRoute
+  EquipamentosIdEditarRoute: typeof EquipamentosIdEditarRoute
+  ManutencoesIdEditarRoute: typeof ManutencoesIdEditarRoute
+  EquipamentosIdIndexRoute: typeof EquipamentosIdIndexRoute
+  ManutencoesIdIndexRoute: typeof ManutencoesIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -111,18 +189,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadastroUsuarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inicio': {
+      id: '/inicio'
+      path: '/inicio'
+      fullPath: '/inicio'
+      preLoaderRoute: typeof InicioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/equipamentos/': {
       id: '/equipamentos/'
       path: '/equipamentos'
       fullPath: '/equipamentos/'
       preLoaderRoute: typeof EquipamentosIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/equipamentos/$id': {
-      id: '/equipamentos/$id'
-      path: '/equipamentos/$id'
-      fullPath: '/equipamentos/$id'
-      preLoaderRoute: typeof EquipamentosIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/equipamentos/novo': {
@@ -132,15 +210,63 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EquipamentosNovoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manutencoes/': {
+      id: '/manutencoes/'
+      path: '/manutencoes'
+      fullPath: '/manutencoes/'
+      preLoaderRoute: typeof ManutencoesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manutencoes/nova': {
+      id: '/manutencoes/nova'
+      path: '/manutencoes/nova'
+      fullPath: '/manutencoes/nova'
+      preLoaderRoute: typeof ManutencoesNovaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/equipamentos/$id/': {
+      id: '/equipamentos/$id/'
+      path: '/equipamentos/$id'
+      fullPath: '/equipamentos/$id/'
+      preLoaderRoute: typeof EquipamentosIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/equipamentos/$id/editar': {
+      id: '/equipamentos/$id/editar'
+      path: '/equipamentos/$id/editar'
+      fullPath: '/equipamentos/$id/editar'
+      preLoaderRoute: typeof EquipamentosIdEditarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manutencoes/$id/': {
+      id: '/manutencoes/$id/'
+      path: '/manutencoes/$id'
+      fullPath: '/manutencoes/$id/'
+      preLoaderRoute: typeof ManutencoesIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manutencoes/$id/editar': {
+      id: '/manutencoes/$id/editar'
+      path: '/manutencoes/$id/editar'
+      fullPath: '/manutencoes/$id/editar'
+      preLoaderRoute: typeof ManutencoesIdEditarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CadastroUsuarioRoute: CadastroUsuarioRoute,
-  EquipamentosIdRoute: EquipamentosIdRoute,
+  InicioRoute: InicioRoute,
   EquipamentosNovoRoute: EquipamentosNovoRoute,
+  ManutencoesNovaRoute: ManutencoesNovaRoute,
   EquipamentosIndexRoute: EquipamentosIndexRoute,
+  ManutencoesIndexRoute: ManutencoesIndexRoute,
+  EquipamentosIdEditarRoute: EquipamentosIdEditarRoute,
+  ManutencoesIdEditarRoute: ManutencoesIdEditarRoute,
+  EquipamentosIdIndexRoute: EquipamentosIdIndexRoute,
+  ManutencoesIdIndexRoute: ManutencoesIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

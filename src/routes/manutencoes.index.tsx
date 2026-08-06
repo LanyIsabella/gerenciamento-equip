@@ -4,7 +4,6 @@ import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, StatusBadge } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -24,83 +23,89 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useApp } from "@/lib/app-store";
 import {
-  CATEGORIAS,
-  STATUS_OPCOES,
+  STATUS_MANUTENCAO,
+  TIPOS_MANUTENCAO,
   formatarData,
-  nomeCategoria,
-  podeGerenciarEquipamentos,
+  formatarMoeda,
+  podeGerenciarManutencoes,
 } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/equipamentos/")({
+export const Route = createFileRoute("/manutencoes/")({
   head: () => ({
     meta: [
-      { title: "Equipamentos — EquipControl" },
+      { title: "Manutenções — EquipControl" },
       {
         name: "description",
         content:
-          "Listagem de equipamentos com busca, filtros por categoria e status, e ações de edição e exclusão.",
+          "Controle de ordens de manutenção preventiva e corretiva com filtros por equipamento, tipo e status.",
       },
-      { property: "og:title", content: "Equipamentos — EquipControl" },
+      { property: "og:title", content: "Manutenções — EquipControl" },
       {
         property: "og:description",
-        content: "Consulte, cadastre e gerencie os equipamentos da operação.",
+        content: "Abra, acompanhe e conclua manutenções dos equipamentos.",
       },
     ],
   }),
-  component: GuiaEquipamentos,
+  component: GuiaManutencoes,
 });
 
-function GuiaEquipamentos() {
+function GuiaManutencoes() {
   const navigate = useNavigate();
-  const { equipamentos, usuarios, perfil, removerEquipamento } = useApp();
-  const gerencia = podeGerenciarEquipamentos(perfil);
+  const { manutencoes, equipamentos, usuarios, perfil, removerManutencao } = useApp();
+  const gerencia = podeGerenciarManutencoes(perfil);
 
-  const [busca, setBusca] = useState("");
-  const [categoria, setCategoria] = useState("todas");
+  const [equipamento, setEquipamento] = useState("todos");
+  const [tipo, setTipo] = useState("todos");
   const [status, setStatus] = useState("todos");
   const [aExcluir, setAExcluir] = useState<number | null>(null);
 
-  const lista = equipamentos.filter((e) => {
-    const texto = `${e.nome} ${e.patrimonio}`.toLowerCase();
-    return (
-      texto.includes(busca.trim().toLowerCase()) &&
-      (categoria === "todas" || e.id_categoria === Number(categoria)) &&
-      (status === "todos" || e.status === status)
-    );
-  });
+  const lista = manutencoes.filter(
+    (m) =>
+      (equipamento === "todos" || m.equipamento_id === Number(equipamento)) &&
+      (tipo === "todos" || m.tipo === tipo) &&
+      (status === "todos" || m.status === status),
+  );
 
+  const nomeEquipamento = (id: number) =>
+    equipamentos.find((e) => e.id_equipamento === id)?.nome ?? "Equipamento removido";
   const nomeUsuario = (id: number) => usuarios.find((u) => u.id === id)?.nome ?? "—";
-  const alvo = equipamentos.find((e) => e.id_equipamento === aExcluir);
 
   return (
     <AppShell
-      titulo="Equipamentos"
-      descricao={`${lista.length} de ${equipamentos.length} equipamentos exibidos.`}
+      titulo="Manutenções"
+      descricao={`${lista.length} de ${manutencoes.length} ordens exibidas.`}
       acao={
         gerencia ? (
-          <Button onClick={() => navigate({ to: "/equipamentos/novo" })}>
+          <Button onClick={() => navigate({ to: "/manutencoes/nova" })}>
             <Plus className="h-4 w-4" aria-hidden="true" />
-            Novo Equipamento
+            Abrir Nova Manutenção
           </Button>
         ) : null
       }
     >
       <div className="mb-4 grid gap-3 rounded-lg border border-border bg-card p-4 shadow-panel sm:grid-cols-3">
-        <Input
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar por nome ou patrimônio"
-          aria-label="Buscar equipamento"
-        />
-        <Select value={categoria} onValueChange={setCategoria}>
-          <SelectTrigger aria-label="Filtrar por categoria">
+        <Select value={equipamento} onValueChange={setEquipamento}>
+          <SelectTrigger aria-label="Filtrar por equipamento">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="todas">Todas as categorias</SelectItem>
-            {CATEGORIAS.map((c) => (
-              <SelectItem key={c.id} value={String(c.id)}>
-                {c.nome}
+            <SelectItem value="todos">Todos os equipamentos</SelectItem>
+            {equipamentos.map((e) => (
+              <SelectItem key={e.id_equipamento} value={String(e.id_equipamento)}>
+                {e.nome}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={tipo} onValueChange={setTipo}>
+          <SelectTrigger aria-label="Filtrar por tipo">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os tipos</SelectItem>
+            {TIPOS_MANUTENCAO.map((t) => (
+              <SelectItem key={t} value={t}>
+                {t}
               </SelectItem>
             ))}
           </SelectContent>
@@ -111,7 +116,7 @@ function GuiaEquipamentos() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
-            {STATUS_OPCOES.map((s) => (
+            {STATUS_MANUTENCAO.map((s) => (
               <SelectItem key={s} value={s}>
                 {s}
               </SelectItem>
@@ -121,45 +126,46 @@ function GuiaEquipamentos() {
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-panel">
-        <table className="w-full min-w-[900px] text-left text-sm">
+        <table className="w-full min-w-[950px] text-left text-sm">
           <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">Nome</th>
-              <th className="px-4 py-3">Patrimônio</th>
-              <th className="px-4 py-3">Aquisição</th>
-              <th className="px-4 py-3">Categoria</th>
+              <th className="px-4 py-3">Equipamento</th>
+              <th className="px-4 py-3">Descrição</th>
+              <th className="px-4 py-3">Tipo</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Abertura</th>
+              <th className="px-4 py-3">Custo</th>
               <th className="px-4 py-3">Responsável</th>
               <th className="px-4 py-3 text-right">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {lista.map((e) => (
-              <tr key={e.id_equipamento} className="hover:bg-muted/50">
-                <td className="px-4 py-3 text-muted-foreground">{e.id_equipamento}</td>
-                <td className="px-4 py-3 font-medium text-foreground">{e.nome}</td>
-                <td className="px-4 py-3">{e.patrimonio}</td>
-                <td className="px-4 py-3">{formatarData(e.data_aquisicao)}</td>
-                <td className="px-4 py-3">{nomeCategoria(e.id_categoria)}</td>
-                <td className="px-4 py-3">
-                  <StatusBadge status={e.status} />
+            {lista.map((m) => (
+              <tr key={m.id} className="hover:bg-muted/50">
+                <td className="px-4 py-3 text-muted-foreground">{m.id}</td>
+                <td className="px-4 py-3 font-medium text-foreground">
+                  {nomeEquipamento(m.equipamento_id)}
                 </td>
-                <td className="px-4 py-3">{nomeUsuario(e.id_responsavel)}</td>
+                <td className="max-w-[240px] truncate px-4 py-3">{m.descricao}</td>
+                <td className="px-4 py-3">{m.tipo}</td>
+                <td className="px-4 py-3">
+                  <StatusBadge status={m.status} />
+                </td>
+                <td className="px-4 py-3">{formatarData(m.data_abertura)}</td>
+                <td className="px-4 py-3">{formatarMoeda(m.custo)}</td>
+                <td className="px-4 py-3">{nomeUsuario(m.id_responsavel)}</td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1">
                     <Button asChild variant="ghost" size="icon" aria-label="Ver detalhes">
-                      <Link to="/equipamentos/$id" params={{ id: String(e.id_equipamento) }}>
+                      <Link to="/manutencoes/$id" params={{ id: String(m.id) }}>
                         <Eye className="h-4 w-4" aria-hidden="true" />
                       </Link>
                     </Button>
                     {gerencia ? (
                       <>
                         <Button asChild variant="ghost" size="icon" aria-label="Editar">
-                          <Link
-                            to="/equipamentos/$id/editar"
-                            params={{ id: String(e.id_equipamento) }}
-                          >
+                          <Link to="/manutencoes/$id/editar" params={{ id: String(m.id) }}>
                             <Pencil className="h-4 w-4" aria-hidden="true" />
                           </Link>
                         </Button>
@@ -167,7 +173,7 @@ function GuiaEquipamentos() {
                           variant="ghost"
                           size="icon"
                           aria-label="Excluir"
-                          onClick={() => setAExcluir(e.id_equipamento)}
+                          onClick={() => setAExcluir(m.id)}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
                         </Button>
@@ -179,8 +185,8 @@ function GuiaEquipamentos() {
             ))}
             {lista.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">
-                  Nenhum equipamento encontrado com os filtros aplicados.
+                <td colSpan={9} className="px-4 py-10 text-center text-muted-foreground">
+                  Nenhuma manutenção encontrada com os filtros aplicados.
                 </td>
               </tr>
             ) : null}
@@ -191,11 +197,9 @@ function GuiaEquipamentos() {
       <AlertDialog open={aExcluir !== null} onOpenChange={(v) => !v && setAExcluir(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir equipamento?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir manutenção?</AlertDialogTitle>
             <AlertDialogDescription>
-              {alvo
-                ? `“${alvo.nome}” e suas manutenções vinculadas serão removidos permanentemente.`
-                : ""}
+              Esta ordem de manutenção será removida permanentemente do sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -203,8 +207,8 @@ function GuiaEquipamentos() {
             <AlertDialogAction
               onClick={() => {
                 if (aExcluir !== null) {
-                  removerEquipamento(aExcluir);
-                  toast.success("Equipamento excluído com sucesso.");
+                  removerManutencao(aExcluir);
+                  toast.success("Manutenção excluída com sucesso.");
                 }
                 setAExcluir(null);
               }}
