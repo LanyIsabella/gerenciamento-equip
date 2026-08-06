@@ -14,6 +14,8 @@ import { Route as CadastroUsuarioRouteImport } from './routes/cadastro-usuario'
 import { Route as InicioRouteImport } from './routes/inicio'
 import { Route as EquipamentosIndexRouteImport } from './routes/equipamentos.index'
 import { Route as EquipamentosNovoRouteImport } from './routes/equipamentos.novo'
+import { Route as ManutencoesIndexRouteImport } from './routes/manutencoes.index'
+import { Route as ManutencoesNovaRouteImport } from './routes/manutencoes.nova'
 import { Route as EquipamentosIdIndexRouteImport } from './routes/equipamentos.$id.index'
 import { Route as EquipamentosIdEditarRouteImport } from './routes/equipamentos.$id.editar'
 
@@ -42,6 +44,16 @@ const EquipamentosNovoRoute = EquipamentosNovoRouteImport.update({
   path: '/equipamentos/novo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManutencoesIndexRoute = ManutencoesIndexRouteImport.update({
+  id: '/manutencoes/',
+  path: '/manutencoes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManutencoesNovaRoute = ManutencoesNovaRouteImport.update({
+  id: '/manutencoes/nova',
+  path: '/manutencoes/nova',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EquipamentosIdIndexRoute = EquipamentosIdIndexRouteImport.update({
   id: '/equipamentos/$id/',
   path: '/equipamentos/$id/',
@@ -58,7 +70,9 @@ export interface FileRoutesByFullPath {
   '/cadastro-usuario': typeof CadastroUsuarioRoute
   '/inicio': typeof InicioRoute
   '/equipamentos/novo': typeof EquipamentosNovoRoute
+  '/manutencoes/nova': typeof ManutencoesNovaRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
+  '/manutencoes/': typeof ManutencoesIndexRoute
   '/equipamentos/$id/editar': typeof EquipamentosIdEditarRoute
   '/equipamentos/$id/': typeof EquipamentosIdIndexRoute
 }
@@ -67,7 +81,9 @@ export interface FileRoutesByTo {
   '/cadastro-usuario': typeof CadastroUsuarioRoute
   '/inicio': typeof InicioRoute
   '/equipamentos/novo': typeof EquipamentosNovoRoute
+  '/manutencoes/nova': typeof ManutencoesNovaRoute
   '/equipamentos': typeof EquipamentosIndexRoute
+  '/manutencoes': typeof ManutencoesIndexRoute
   '/equipamentos/$id/editar': typeof EquipamentosIdEditarRoute
   '/equipamentos/$id': typeof EquipamentosIdIndexRoute
 }
@@ -77,7 +93,9 @@ export interface FileRoutesById {
   '/cadastro-usuario': typeof CadastroUsuarioRoute
   '/inicio': typeof InicioRoute
   '/equipamentos/novo': typeof EquipamentosNovoRoute
+  '/manutencoes/nova': typeof ManutencoesNovaRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
+  '/manutencoes/': typeof ManutencoesIndexRoute
   '/equipamentos/$id/editar': typeof EquipamentosIdEditarRoute
   '/equipamentos/$id/': typeof EquipamentosIdIndexRoute
 }
@@ -88,7 +106,9 @@ export interface FileRouteTypes {
     | '/cadastro-usuario'
     | '/inicio'
     | '/equipamentos/novo'
+    | '/manutencoes/nova'
     | '/equipamentos/'
+    | '/manutencoes/'
     | '/equipamentos/$id/editar'
     | '/equipamentos/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -97,7 +117,9 @@ export interface FileRouteTypes {
     | '/cadastro-usuario'
     | '/inicio'
     | '/equipamentos/novo'
+    | '/manutencoes/nova'
     | '/equipamentos'
+    | '/manutencoes'
     | '/equipamentos/$id/editar'
     | '/equipamentos/$id'
   id:
@@ -106,7 +128,9 @@ export interface FileRouteTypes {
     | '/cadastro-usuario'
     | '/inicio'
     | '/equipamentos/novo'
+    | '/manutencoes/nova'
     | '/equipamentos/'
+    | '/manutencoes/'
     | '/equipamentos/$id/editar'
     | '/equipamentos/$id/'
   fileRoutesById: FileRoutesById
@@ -116,7 +140,9 @@ export interface RootRouteChildren {
   CadastroUsuarioRoute: typeof CadastroUsuarioRoute
   InicioRoute: typeof InicioRoute
   EquipamentosNovoRoute: typeof EquipamentosNovoRoute
+  ManutencoesNovaRoute: typeof ManutencoesNovaRoute
   EquipamentosIndexRoute: typeof EquipamentosIndexRoute
+  ManutencoesIndexRoute: typeof ManutencoesIndexRoute
   EquipamentosIdEditarRoute: typeof EquipamentosIdEditarRoute
   EquipamentosIdIndexRoute: typeof EquipamentosIdIndexRoute
 }
@@ -158,6 +184,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EquipamentosNovoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manutencoes/': {
+      id: '/manutencoes/'
+      path: '/manutencoes'
+      fullPath: '/manutencoes/'
+      preLoaderRoute: typeof ManutencoesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manutencoes/nova': {
+      id: '/manutencoes/nova'
+      path: '/manutencoes/nova'
+      fullPath: '/manutencoes/nova'
+      preLoaderRoute: typeof ManutencoesNovaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/equipamentos/$id/': {
       id: '/equipamentos/$id/'
       path: '/equipamentos/$id'
@@ -180,7 +220,9 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroUsuarioRoute: CadastroUsuarioRoute,
   InicioRoute: InicioRoute,
   EquipamentosNovoRoute: EquipamentosNovoRoute,
+  ManutencoesNovaRoute: ManutencoesNovaRoute,
   EquipamentosIndexRoute: EquipamentosIndexRoute,
+  ManutencoesIndexRoute: ManutencoesIndexRoute,
   EquipamentosIdEditarRoute: EquipamentosIdEditarRoute,
   EquipamentosIdIndexRoute: EquipamentosIdIndexRoute,
 }
