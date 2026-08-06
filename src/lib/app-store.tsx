@@ -92,7 +92,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [tema]);
 
-  const usuarioAtual = usuarios.find((u) => u.id === usuarioAtualId) ?? usuarios[0];
+  const usuarioAtual: Usuario =
+    usuarios.find((u) => u.id === usuarioAtualId) ?? usuarios[0] ?? USUARIOS_INICIAIS[0]!;
 
   const valor: Estado = {
     equipamentos,

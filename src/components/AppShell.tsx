@@ -1,6 +1,21 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Cog, LogOut } from "lucide-react";
+import { Boxes, LogOut, Moon, Sun, Wrench, LayoutDashboard } from "lucide-react";
+import { useApp } from "@/lib/app-store";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+
+const LINKS = [
+  { to: "/inicio", rotulo: "Início", icone: LayoutDashboard },
+  { to: "/equipamentos", rotulo: "Equipamentos", icone: Boxes },
+  { to: "/manutencoes", rotulo: "Manutenções", icone: Wrench },
+] as const;
 
 export function AppShell({
   titulo,
@@ -15,35 +30,80 @@ export function AppShell({
 }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { usuarios, usuarioAtual, definirUsuarioAtual, tema, alternarTema } = useApp();
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-primary text-primary-foreground">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <Link to="/equipamentos" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded bg-accent text-accent-foreground">
-              <Cog className="h-5 w-5" aria-hidden="true" />
+      <header className="sticky top-0 z-30 border-b border-border bg-primary text-primary-foreground">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <Link to="/inicio" className="flex items-center gap-2">
+            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-accent text-accent-foreground">
+              <Wrench className="h-5 w-5" aria-hidden="true" />
             </span>
-            <span className="font-display text-xl uppercase tracking-wide">MaqControl</span>
+            <span className="font-display text-xl uppercase tracking-wide">EquipControl</span>
           </Link>
-          <nav className="flex items-center gap-1 text-sm">
-            <Link
-              to="/equipamentos"
-              className={`rounded px-3 py-1.5 transition-colors hover:bg-primary-foreground/10 ${
-                pathname.startsWith("/equipamentos") ? "bg-primary-foreground/15" : ""
-              }`}
+
+          <nav className="order-3 flex w-full items-center gap-1 text-sm sm:order-none sm:w-auto">
+            {LINKS.map(({ to, rotulo, icone: Icone }) => (
+              <Link
+                key={to}
+                to={to}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-colors hover:bg-primary-foreground/10 ${
+                  pathname.startsWith(to) ? "bg-primary-foreground/20 font-medium" : ""
+                }`}
+              >
+                <Icone className="h-4 w-4" aria-hidden="true" />
+                {rotulo}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <Select
+              value={String(usuarioAtual.id)}
+              onValueChange={(v) => definirUsuarioAtual(Number(v))}
             >
-              Equipamentos
-            </Link>
-            <button
+              <SelectTrigger
+                aria-label="Perfil da sessão"
+                className="h-9 w-[220px] border-primary-foreground/25 bg-primary-foreground/10 text-primary-foreground"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {usuarios.map((u) => (
+                  <SelectItem key={u.id} value={String(u.id)}>
+                    {u.nome} · {u.perfil}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={tema === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+              onClick={alternarTema}
+              className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
+              {tema === "dark" ? (
+                <Sun className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Moon className="h-4 w-4" aria-hidden="true" />
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Sair"
               onClick={() => navigate({ to: "/" })}
-              className="flex items-center gap-1.5 rounded px-3 py-1.5 transition-colors hover:bg-primary-foreground/10"
+              className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
-              Sair
-            </button>
-          </nav>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -67,9 +127,9 @@ export function AppShell({
 
 export function StatusBadge({ status }: { status: string }) {
   const estilo =
-    status === "Ativo"
+    status === "Ativo" || status === "Concluída"
       ? "bg-success text-success-foreground"
-      : status === "Em Manutenção"
+      : status === "Em Manutenção" || status === "Em Andamento" || status === "Pendente"
         ? "bg-warning text-warning-foreground"
         : "bg-neutral-state text-neutral-state-foreground";
 
