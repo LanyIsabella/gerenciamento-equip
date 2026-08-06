@@ -1,187 +1,219 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Eye, Plus, Search } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell, StatusBadge } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useEquipamentos } from "@/lib/equipamentos-store";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useApp } from "@/lib/app-store";
 import {
   CATEGORIAS,
   STATUS_OPCOES,
   formatarData,
   nomeCategoria,
-  nomeUsuario,
+  podeGerenciarEquipamentos,
 } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/equipamentos/")({
   head: () => ({
     meta: [
-      { title: "Listagem de Equipamentos — MaqControl" },
+      { title: "Equipamentos — EquipControl" },
       {
         name: "description",
         content:
-          "Consulte, busque e filtre todos os equipamentos por nome, categoria e status operacional.",
+          "Listagem de equipamentos com busca, filtros por categoria e status, e ações de edição e exclusão.",
       },
-      { property: "og:title", content: "Listagem de Equipamentos — MaqControl" },
+      { property: "og:title", content: "Equipamentos — EquipControl" },
       {
         property: "og:description",
-        content: "Todos os equipamentos da operação com busca e filtros em tempo real.",
+        content: "Consulte, cadastre e gerencie os equipamentos da operação.",
       },
     ],
   }),
-  component: TelaListagemEquipamentos,
+  component: GuiaEquipamentos,
 });
 
-function TelaListagemEquipamentos() {
-  const { equipamentos } = useEquipamentos();
+function GuiaEquipamentos() {
+  const navigate = useNavigate();
+  const { equipamentos, usuarios, perfil, removerEquipamento } = useApp();
+  const gerencia = podeGerenciarEquipamentos(perfil);
+
   const [busca, setBusca] = useState("");
   const [categoria, setCategoria] = useState("todas");
   const [status, setStatus] = useState("todos");
+  const [aExcluir, setAExcluir] = useState<number | null>(null);
 
-  const lista = useMemo(
-    () =>
-      equipamentos.filter((e) => {
-        const casaNome = e.nome.toLowerCase().includes(busca.trim().toLowerCase());
-        const casaCategoria = categoria === "todas" || String(e.id_categoria) === categoria;
-        const casaStatus = status === "todos" || e.status === status;
-        return casaNome && casaCategoria && casaStatus;
-      }),
-    [equipamentos, busca, categoria, status],
-  );
+  const lista = equipamentos.filter((e) => {
+    const texto = `${e.nome} ${e.patrimonio}`.toLowerCase();
+    return (
+      texto.includes(busca.trim().toLowerCase()) &&
+      (categoria === "todas" || e.id_categoria === Number(categoria)) &&
+      (status === "todos" || e.status === status)
+    );
+  });
 
-  const selectClasse =
-    "h-10 w-full rounded-md border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  const nomeUsuario = (id: number) => usuarios.find((u) => u.id === id)?.nome ?? "—";
+  const alvo = equipamentos.find((e) => e.id_equipamento === aExcluir);
 
   return (
     <AppShell
       titulo="Equipamentos"
-      descricao={`${lista.length} de ${equipamentos.length} equipamento(s) exibido(s)`}
+      descricao={`${lista.length} de ${equipamentos.length} equipamentos exibidos.`}
       acao={
-        <Button asChild>
-          <Link to="/equipamentos/novo">
+        gerencia ? (
+          <Button onClick={() => navigate({ to: "/equipamentos/novo" })}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             Novo Equipamento
-          </Link>
-        </Button>
+          </Button>
+        ) : null
       }
     >
-      <section className="mb-6 rounded-lg border border-border bg-card p-4 shadow-panel">
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label htmlFor="busca">Buscar por nome</Label>
-            <div className="relative">
-              <Search
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <Input
-                id="busca"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                placeholder="Ex.: Torno CNC"
-                className="pl-9"
-              />
-            </div>
-          </div>
+      <div className="mb-4 grid gap-3 rounded-lg border border-border bg-card p-4 shadow-panel sm:grid-cols-3">
+        <Input
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          placeholder="Buscar por nome ou patrimônio"
+          aria-label="Buscar equipamento"
+        />
+        <Select value={categoria} onValueChange={setCategoria}>
+          <SelectTrigger aria-label="Filtrar por categoria">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todas">Todas as categorias</SelectItem>
+            {CATEGORIAS.map((c) => (
+              <SelectItem key={c.id} value={String(c.id)}>
+                {c.nome}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger aria-label="Filtrar por status">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os status</SelectItem>
+            {STATUS_OPCOES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="filtro-categoria">Categoria</Label>
-            <select
-              id="filtro-categoria"
-              className={selectClasse}
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-            >
-              <option value="todas">Todas as categorias</option>
-              {CATEGORIAS.map((c) => (
-                <option key={c.id} value={String(c.id)}>
-                  {c.nome}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="filtro-status">Status</Label>
-            <select
-              id="filtro-status"
-              className={selectClasse}
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <option value="todos">Todos os status</option>
-              {STATUS_OPCOES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section className="overflow-x-auto rounded-lg border border-border bg-card shadow-panel">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16">ID</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Patrimônio</TableHead>
-              <TableHead>Data de Aquisição</TableHead>
-              <TableHead>Categoria</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Responsável</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {lista.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
-                  Nenhum equipamento encontrado com os filtros aplicados.
-                </TableCell>
-              </TableRow>
-            ) : (
-              lista.map((e) => (
-                <TableRow key={e.id_equipamento}>
-                  <TableCell className="font-mono text-xs text-muted-foreground">
-                    #{e.id_equipamento}
-                  </TableCell>
-                  <TableCell className="font-medium">{e.nome}</TableCell>
-                  <TableCell className="font-mono text-xs">{e.patrimonio}</TableCell>
-                  <TableCell>{formatarData(e.data_aquisicao)}</TableCell>
-                  <TableCell>{nomeCategoria(e.id_categoria)}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={e.status} />
-                  </TableCell>
-                  <TableCell>{nomeUsuario(e.id_responsavel)}</TableCell>
-                  <TableCell className="text-right">
-                    <Button asChild variant="outline" size="sm">
-                      <Link
-                        to="/equipamentos/$id"
-                        params={{ id: String(e.id_equipamento) }}
-                        aria-label={`Ver detalhes de ${e.nome}`}
-                      >
+      <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-panel">
+        <table className="w-full min-w-[900px] text-left text-sm">
+          <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
+            <tr>
+              <th className="px-4 py-3">ID</th>
+              <th className="px-4 py-3">Nome</th>
+              <th className="px-4 py-3">Patrimônio</th>
+              <th className="px-4 py-3">Aquisição</th>
+              <th className="px-4 py-3">Categoria</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Responsável</th>
+              <th className="px-4 py-3 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {lista.map((e) => (
+              <tr key={e.id_equipamento} className="hover:bg-muted/50">
+                <td className="px-4 py-3 text-muted-foreground">{e.id_equipamento}</td>
+                <td className="px-4 py-3 font-medium text-foreground">{e.nome}</td>
+                <td className="px-4 py-3">{e.patrimonio}</td>
+                <td className="px-4 py-3">{formatarData(e.data_aquisicao)}</td>
+                <td className="px-4 py-3">{nomeCategoria(e.id_categoria)}</td>
+                <td className="px-4 py-3">
+                  <StatusBadge status={e.status} />
+                </td>
+                <td className="px-4 py-3">{nomeUsuario(e.id_responsavel)}</td>
+                <td className="px-4 py-3">
+                  <div className="flex justify-end gap-1">
+                    <Button asChild variant="ghost" size="icon" aria-label="Ver detalhes">
+                      <Link to="/equipamentos/$id" params={{ id: String(e.id_equipamento) }}>
                         <Eye className="h-4 w-4" aria-hidden="true" />
-                        Ver detalhes
                       </Link>
                     </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </section>
+                    {gerencia ? (
+                      <>
+                        <Button asChild variant="ghost" size="icon" aria-label="Editar">
+                          <Link
+                            to="/equipamentos/$id/editar"
+                            params={{ id: String(e.id_equipamento) }}
+                          >
+                            <Pencil className="h-4 w-4" aria-hidden="true" />
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Excluir"
+                          onClick={() => setAExcluir(e.id_equipamento)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
+                        </Button>
+                      </>
+                    ) : null}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {lista.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">
+                  Nenhum equipamento encontrado com os filtros aplicados.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+
+      <AlertDialog open={aExcluir !== null} onOpenChange={(v) => !v && setAExcluir(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir equipamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {alvo
+                ? `“${alvo.nome}” e suas manutenções vinculadas serão removidos permanentemente.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (aExcluir !== null) {
+                  removerEquipamento(aExcluir);
+                  toast.success("Equipamento excluído com sucesso.");
+                }
+                setAExcluir(null);
+              }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   );
 }
