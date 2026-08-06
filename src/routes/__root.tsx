@@ -11,7 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { EquipamentosProvider } from "../lib/equipamentos-store";
+import { AppProvider } from "../lib/app-store";
 import { Toaster } from "../components/ui/sonner";
 
 
@@ -80,14 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MaqControl — Gestão de Equipamentos e Manutenções" },
+      { title: "EquipControl — Gestão de Equipamentos e Manutenções" },
       {
         name: "description",
         content:
           "Sistema corporativo para controle de equipamentos, patrimônio, status e responsáveis.",
       },
-      { name: "author", content: "MaqControl" },
-      { property: "og:title", content: "MaqControl — Gestão de Equipamentos" },
+      { name: "author", content: "EquipControl" },
+      { property: "og:title", content: "EquipControl — Gestão de Equipamentos" },
       {
         property: "og:description",
         content: "Controle de equipamentos, patrimônio e manutenções.",
@@ -135,11 +135,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <EquipamentosProvider>
+      <AppProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <Toaster position="top-right" richColors />
-      </EquipamentosProvider>
+      </AppProvider>
     </QueryClientProvider>
   );
 }

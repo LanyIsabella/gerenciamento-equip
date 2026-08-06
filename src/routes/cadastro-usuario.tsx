@@ -47,13 +47,13 @@ function TelaCadastroUsuario() {
   const [enviado, setEnviado] = useState(false);
 
   const erros: Record<string, string> = {};
-  if (!nome.trim()) erros.nome = "Informe o nome completo.";
+  if (!nome.trim()) erros['nome'] = "Informe o nome completo.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim()))
-    erros.email = "Informe um e-mail válido (ex.: usuario@dominio.com).";
+    erros['email'] = "Informe um e-mail válido (ex.: usuario@dominio.com).";
   else if (usuarios.some((u) => u.email.toLowerCase() === email.trim().toLowerCase()))
-    erros.email = "Este e-mail já está cadastrado.";
-  if (senha.length < 8) erros.senha = "A senha deve ter no mínimo 8 caracteres.";
-  if (confirmacao !== senha) erros.confirmacao = "As senhas não coincidem.";
+    erros['email'] = "Este e-mail já está cadastrado.";
+  if (senha.length < 8) erros['senha'] = "A senha deve ter no mínimo 8 caracteres.";
+  if (confirmacao !== senha) erros['confirmacao'] = "As senhas não coincidem.";
 
   const mostrar = (campo: string) =>
     (enviado || tocado[campo]) && erros[campo] ? erros[campo] : "";
