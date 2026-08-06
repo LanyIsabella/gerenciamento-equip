@@ -30,7 +30,7 @@ export const Route = createFileRoute("/equipamentos/$id/")({
 });
 
 function DetalheEquipamento() {
-  const { id } = useParams({ from: "/equipamentos/$id" });
+  const { id } = useParams({ from: "/equipamentos/$id/" });
   const navigate = useNavigate();
   const { equipamentos, manutencoes, usuarios, perfil } = useApp();
 
