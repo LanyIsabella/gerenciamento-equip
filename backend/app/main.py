@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from .equipamentos import controller as equipamentos_controller
+from .manutencoes import controller as manutencoes_controller
 
 app = FastAPI(title="Gerenciador de Equipamentos", version="1.0.0", description="API para gerenciar equipamentos e suas manutenções.")
 app.include_router(equipamentos_controller.router)
+app.include_router(manutencoes_controller.router)
 
 
 '''@app.get("/")
