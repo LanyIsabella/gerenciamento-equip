@@ -1,8 +1,11 @@
 from fastapi import FastAPI
+from .equipamentos import controller as equipamentos_controller
 
 app = FastAPI(title="Gerenciador de Equipamentos", version="1.0.0", description="API para gerenciar equipamentos e suas manutenções.")
+app.include_router(equipamentos_controller.router)
 
-@app.get("/")
+
+'''@app.get("/")
 
 def raiz_projeto():
     return {"message": "Bem-vindo ao Gerenciador de Equipamentos!"}
@@ -20,4 +23,4 @@ def listar_equipamentos():
         {
             "id_equipamento": 3, "nome": "Projetor Epson", "descricao": "Projetor para apresentações", "data_aquisicao": "2020-05-20", "status": "Disponível"
         }
-    ]
+    ]'''
