@@ -1,44 +1,37 @@
-from fastapi import APIRouter, HTTPException, status
-from .schemas import EquipamentoCriar, EquipamentoPublico, EquipamentoAtualizar
+from fastapi import APIRouter, Depends, Response, status
+
+from .dependencias import (obter_service, obter_service_atualizacao,
+                           obter_service_busca, obter_service_exclusao,
+                           obter_service_listagem)
+from .schemas import EquipamentoAtualizar, EquipamentoCriar, EquipamentoPublico
+from .service import (ApagarEquipamentoService, AtualizarEquipamentoService,
+                      BuscarEquipamentoService, CadastroEquipamentoService,
+                      ListarEquipamentosService)
 
 router = APIRouter(prefix="/equipamentos", tags=["Equipamentos"])
 
-# Banco de mentira: uma lista em memoria. Vira banco de verdade no encontro 4.
-equipamentos: list[dict] = []
-
 
 @router.get("/", response_model=list[EquipamentoPublico])
-def listar():
-    return equipamentos
+def listar(service: ListarEquipamentosService = Depends(obter_service_listagem)):
+    return service.listar()
+
 
 @router.post("/", response_model=EquipamentoPublico, status_code=201)
-def criar(dados: EquipamentoCriar):
-    novo = {"id": len(equipamentos) + 1, **dados.model_dump()}
-    equipamentos.append(novo)
-    return novo
+def criar(dados: EquipamentoCriar, service: CadastroEquipamentoService = Depends(obter_service)):
+    return service.cadastrar(**dados.model_dump())
+
 
 @router.get("/{id_equipamento}", response_model=EquipamentoPublico)
-def buscar(id_equipamento: int):
-    for p in equipamentos:
-        if p["id"] == id_equipamento:
-            return p
-    raise HTTPException(status_code=404, detail="Equipamento não encontrado")
+def buscar(id_equipamento: int, service: BuscarEquipamentoService = Depends(obter_service_busca)):
+    return service.buscar_por_id(id_equipamento)
+
 
 @router.patch("/{id_equipamento}", response_model=EquipamentoPublico)
-def atualizar(id_equipamento: int, dados: EquipamentoAtualizar):
-    for p in equipamentos:
-        if p["id"] == id_equipamento:
-            p.update(dados.model_dump(exclude_unset=True))
-            return p
-    raise HTTPException(status_code=404, detail="Equipamento não encontrado")
+def atualizar(id_equipamento: int, dados: EquipamentoAtualizar, service: AtualizarEquipamentoService = Depends(obter_service_atualizacao)):
+    return service.atualizar(id_equipamento, dados.model_dump(exclude_unset=True))
+
 
 @router.delete("/{id_equipamento}", status_code=204)
-def apagar(id_equipamento: int):
-    for p in equipamentos:
-        if p["id"] == id_equipamento:
-            equipamentos.remove(p)
-            return
-    raise HTTPException(status_code=404, detail="Equipamento não encontrado")
-
-
-
+def apagar(id_equipamento: int, service: ApagarEquipamentoService = Depends(obter_service_exclusao)):
+    service.apagar(id_equipamento)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

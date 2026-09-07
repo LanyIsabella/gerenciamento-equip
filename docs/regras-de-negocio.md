@@ -15,11 +15,7 @@ não houver equipamentos, a consulta deve retornar uma lista vazia.
 
 Para cadastrar um equipamento, o usuário deve informar:
 
-- nome com pelo menos 40 caracteres;
-- descrição com pelo menos 100 caracteres;
-- data de aquisição no formato `AAAA-MM-DD`;
-- número de patrimônio com pelo menos 10 caracteres;
-- status com pelo menos 10 caracteres;
+- número de patrimônio formatado em "PAT-0000";
 - identificador da categoria maior que zero;
 - identificador do responsável maior que zero.
 
@@ -73,12 +69,6 @@ Para cadastrar uma manutenção, o usuário deve informar:
 
 - identificador do equipamento maior que zero;
 - identificador do responsável maior que zero;
-- descrição com pelo menos 100 caracteres;
-- status com pelo menos 10 caracteres;
-- tipo de manutenção com pelo menos 10 caracteres;
-- custo maior que zero;
-- data de abertura no formato `AAAA-MM-DD`;
-- data de conclusão opcional, quando informada no formato `AAAA-MM-DD`.
 
 Se algum dado não atender a essas condições, o cadastro deve ser rejeitado.
 
