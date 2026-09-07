@@ -1,37 +1,43 @@
-from pydantic import BaseModel, Field
+from datetime import date
+
+from app.equipamentos.schemas import EquipamentoResumo
+from app.usuarios.schemas import UsuarioResumo
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class ManutencaoCriar(BaseModel):     # ENTRA no cadastro
+class ManutencaoCriar(BaseModel):
     id_equipamento: int = Field(gt=0, description="ID do equipamento")
     id_responsavel: int = Field(gt=0, description="ID do responsável pela manutenção")
     descricao: str = Field(min_length=100)
-    status: str = Field(min_length=10)
-    tipo: str = Field(min_length=10)
-    custo: float = Field(gt=0, description="Custo da manutenção")
-    data_abertura: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
-    data_conclusao: str | None = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
+    status: str = Field(min_length=10, max_length=30)
+    tipo: str = Field(min_length=10, max_length=50)
+    custo: float = Field(gt=0)
+    data_abertura: date
+    data_conclusao: date | None = None
 
-class ManutencaoPublico(BaseModel):      # SAI na resposta
+
+class ManutencaoAtualizar(BaseModel):
+    id_equipamento: int | None = Field(default=None, gt=0)
+    id_responsavel: int | None = Field(default=None, gt=0)
+    descricao: str | None = Field(default=None, min_length=100)
+    status: str | None = Field(default=None, min_length=10, max_length=30)
+    tipo: str | None = Field(default=None, min_length=10, max_length=50)
+    custo: float | None = Field(default=None, gt=0)
+    data_abertura: date | None = None
+    data_conclusao: date | None = None
+
+
+class ManutencaoPublico(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     id_equipamento: int
-    nome_equipamento: str
+    equipamento: EquipamentoResumo
     id_responsavel: int
-    nome_responsavel: str
+    responsavel: UsuarioResumo
     descricao: str
     status: str
     tipo: str
     custo: float
-    data_abertura: str
-    data_conclusao: str | None = None
-
-class ManutencaoAtualizar(BaseModel):    # ENTRA na edicao, tudo opcional
-    id_equipamento: int | None = None
-    nome_equipamento: str | None = None
-    id_responsavel: int | None = None
-    nome_responsavel: str | None = None
-    descricao: str | None = None
-    status: str | None = None
-    tipo: str | None = None
-    custo: float | None = None
-    data_abertura: str | None = None
-    data_conclusao: str | None = None
+    data_abertura: date
+    data_conclusao: date | None = None
