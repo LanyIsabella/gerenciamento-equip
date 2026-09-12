@@ -1,5 +1,8 @@
+from app.usuarios.enums import CargoUsuario
+
 from .erros import (EquipamentoManutencaoNaoEncontrado,
                      ManutencaoNaoEncontrada,
+                     ResponsavelManutencaoInvalido,
                      ResponsavelManutencaoNaoEncontrado)
 
 
@@ -16,6 +19,8 @@ class _BaseManutencaoService:
         responsavel = self.usuario_repositorio.buscar_por_id(dados["id_responsavel"])
         if responsavel is None:
             raise ResponsavelManutencaoNaoEncontrado()
+        if responsavel.cargo != CargoUsuario.TECNICO:
+            raise ResponsavelManutencaoInvalido()
 
 
 class CadastroManutencaoService(_BaseManutencaoService):
@@ -25,8 +30,17 @@ class CadastroManutencaoService(_BaseManutencaoService):
 
 
 class ListarManutencoesService(_BaseManutencaoService):
-    def listar(self):
-        return self.repositorio.listar()
+    def listar(
+        self,
+        id_equipamento: int | None = None,
+        tipo: str | None = None,
+        status: str | None = None,
+    ):
+        return self.repositorio.listar(
+            id_equipamento=id_equipamento,
+            tipo=tipo,
+            status=status,
+        )
 
 
 class BuscarManutencaoService(_BaseManutencaoService):

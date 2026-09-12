@@ -25,8 +25,23 @@ class ManutencaoRepository:
             raise
         return self.buscar_por_id(manutencao.id)
 
-    def listar(self) -> list[Manutencao]:
+    def listar(
+        self,
+        id_equipamento: int | None = None,
+        tipo: str | None = None,
+        status: str | None = None,
+    ) -> list[Manutencao]:
         consulta = self._consulta_com_relacionamentos().order_by(Manutencao.id)
+
+        if id_equipamento is not None:
+            consulta = consulta.where(Manutencao.id_equipamento == id_equipamento)
+
+        if tipo:
+            consulta = consulta.where(Manutencao.tipo == tipo)
+
+        if status:
+            consulta = consulta.where(Manutencao.status == status)
+
         return list(self.session.scalars(consulta).all())
 
     def buscar_por_id(self, id_manutencao: int) -> Manutencao | None:

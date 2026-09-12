@@ -16,3 +16,11 @@ class PatrimonioJaCadastrado(HTTPException):
             status_code=status.HTTP_409_CONFLICT,
             detail="Já existe um equipamento com este patrimônio",
         )
+
+
+class ResponsavelEquipamentoInvalido(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="O responsável pelo equipamento deve ter o cargo gerente",
+        )

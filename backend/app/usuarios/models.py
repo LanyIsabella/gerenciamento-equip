@@ -1,10 +1,12 @@
-from sqlalchemy import Boolean, Enum as SqlEnum, String
 from typing import TYPE_CHECKING
 
+from sqlalchemy import Boolean, Enum as SqlEnum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 from app.usuarios.enums import CargoUsuario
+
+
 if TYPE_CHECKING:
     from app.equipamentos.models import Equipamento
     from app.manutencoes.models import Manutencao

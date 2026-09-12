@@ -7,6 +7,7 @@ from app.manutencoes.models import Manutencao  # noqa: F401
 from app.usuarios.models import Usuario  # noqa: F401
 from .equipamentos import controller as equipamentos_controller
 from .manutencoes import controller as manutencoes_controller
+from .usuarios import controller as usuarios_controller
 
 
 app = FastAPI(
@@ -16,3 +17,4 @@ app = FastAPI(
 )
 app.include_router(equipamentos_controller.router)
 app.include_router(manutencoes_controller.router)
+app.include_router(usuarios_controller.router)
