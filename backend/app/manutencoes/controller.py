@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 
 from .dependencias import (obter_service_atualizacao, obter_service_busca,
                            obter_service_cadastro, obter_service_exclusao,
@@ -12,8 +12,17 @@ router = APIRouter(prefix="/manutencoes", tags=["Manutenções"])
 
 
 @router.get("/", response_model=list[ManutencaoPublico])
-def listar(service: ListarManutencoesService = Depends(obter_service_listagem)):
-    return service.listar()
+def listar(
+    id_equipamento: int | None = Query(default=None),
+    tipo: str | None = Query(default=None),
+    status: str | None = Query(default=None),
+    service: ListarManutencoesService = Depends(obter_service_listagem),
+):
+    return service.listar(
+        id_equipamento=id_equipamento,
+        tipo=tipo,
+        status=status,
+    )
 
 
 @router.post("/", response_model=ManutencaoPublico, status_code=201)

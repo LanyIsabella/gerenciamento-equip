@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, joinedload
 
 from .models import Equipamento
@@ -64,7 +64,12 @@ class EquipamentoRepository:
             self.session.rollback()
             raise
 
-    def listar(self) -> list[Equipamento]:
+    def listar(
+        self,
+        busca: str | None = None,
+        id_categoria: int | None = None,
+        status: str | None = None,
+    ) -> list[Equipamento]:
         consulta = (
             select(Equipamento)
             .options(
@@ -73,6 +78,21 @@ class EquipamentoRepository:
             )
             .order_by(Equipamento.id)
         )
+
+        if busca:
+            termo = f"%{busca.strip()}%"
+            consulta = consulta.where(
+                or_(
+                    Equipamento.nome.ilike(termo),
+                    Equipamento.patrimonio.ilike(termo),
+                )
+            )
+
+        if id_categoria is not None:
+            consulta = consulta.where(Equipamento.id_categoria == id_categoria)
+
+        if status:
+            consulta = consulta.where(Equipamento.status == status)
 
         equipamentos = self.session.scalars(consulta).all()
 

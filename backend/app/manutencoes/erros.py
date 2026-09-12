@@ -19,3 +19,11 @@ class EquipamentoManutencaoNaoEncontrado(HTTPException):
 class ResponsavelManutencaoNaoEncontrado(HTTPException):
     def __init__(self) -> None:
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário responsável não encontrado")
+
+
+class ResponsavelManutencaoInvalido(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="O responsável pela manutenção deve ter o cargo tecnico",
+        )
