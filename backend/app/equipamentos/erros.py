@@ -22,5 +22,8 @@ class ResponsavelEquipamentoInvalido(HTTPException):
     def __init__(self) -> None:
         super().__init__(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="O responsável pelo equipamento deve ter o cargo gerente",
+            detail=(
+                "O responsável pelo equipamento deve ter o cargo "
+                "administrador ou gerente"
+            ),
         )

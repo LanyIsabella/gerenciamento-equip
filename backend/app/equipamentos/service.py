@@ -1,8 +1,7 @@
-from app.usuarios.enums import CargoUsuario
 from app.usuarios.repository import UsuarioRepository
 
-from .erros import (EquipamentoNaoEncontrado, PatrimonioJaCadastrado,
-                    ResponsavelEquipamentoInvalido)
+from .erros import EquipamentoNaoEncontrado, PatrimonioJaCadastrado
+from .policies import PoliticaCriacaoEquipamento
 
 
 def normalizar_patrimonio(patrimonio: str) -> str:
@@ -13,14 +12,19 @@ def normalizar_patrimonio(patrimonio: str) -> str:
 
 
 class CadastroEquipamentoService:
-    def __init__(self, repositorio, usuario_repositorio: UsuarioRepository):
+    def __init__(
+        self,
+        repositorio,
+        usuario_repositorio: UsuarioRepository,
+        politica: PoliticaCriacaoEquipamento | None = None,
+    ):
         self.repositorio = repositorio
         self.usuario_repositorio = usuario_repositorio
+        self.politica = politica or PoliticaCriacaoEquipamento()
 
     def cadastrar(self, **dados):
         responsavel = self.usuario_repositorio.buscar_por_id(dados["id_responsavel"])
-        if responsavel is None or responsavel.cargo != CargoUsuario.GERENTE:
-            raise ResponsavelEquipamentoInvalido()
+        self.politica.validar(responsavel)
         dados["patrimonio"] = normalizar_patrimonio(dados["patrimonio"])
         if self.repositorio.buscar_por_patrimonio(dados["patrimonio"]):
             raise PatrimonioJaCadastrado()
@@ -71,10 +75,9 @@ class AtualizarEquipamentoService:
         if equipamento is None:
             raise EquipamentoNaoEncontrado()
         dados = dict(dados)
-        if "id_responsavel" in dados:
-            responsavel = self.usuario_repositorio.buscar_por_id(dados["id_responsavel"])
-            if responsavel is None or responsavel.cargo != CargoUsuario.GERENTE:
-                raise ResponsavelEquipamentoInvalido()
+        id_responsavel = dados.get("id_responsavel", equipamento.id_responsavel)
+        responsavel = self.usuario_repositorio.buscar_por_id(id_responsavel)
+        self.politica.validar(responsavel)
         if "patrimonio" in dados:
             dados["patrimonio"] = normalizar_patrimonio(dados["patrimonio"])
             existente = self.repositorio.buscar_por_patrimonio(dados["patrimonio"])
