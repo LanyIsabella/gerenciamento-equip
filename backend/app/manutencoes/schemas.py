@@ -4,13 +4,15 @@ from app.equipamentos.schemas import EquipamentoResumo
 from app.usuarios.schemas import UsuarioResumo
 from pydantic import BaseModel, ConfigDict, field_validator
 
+from .enums import TipoManutencao
+
 
 class ManutencaoCriar(BaseModel):
     id_equipamento: int
     id_responsavel: int
     descricao: str
     status: str
-    tipo: str
+    tipo: TipoManutencao
     custo: float
     data_abertura: date
     data_conclusao: date | None = None
@@ -35,7 +37,7 @@ class ManutencaoAtualizar(BaseModel):
     id_responsavel: int | None = None
     descricao: str | None = None
     status: str | None = None
-    tipo: str | None = None
+    tipo: TipoManutencao | None = None
     custo: float | None = None
     data_abertura: date | None = None
     data_conclusao: date | None = None
@@ -65,7 +67,7 @@ class ManutencaoPublico(BaseModel):
     responsavel: UsuarioResumo
     descricao: str
     status: str
-    tipo: str
+    tipo: TipoManutencao
     custo: float
     data_abertura: date
     data_conclusao: date | None = None

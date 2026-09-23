@@ -30,3 +30,11 @@ class ResponsavelManutencaoInvalido(HTTPException):
                 "administrador ou técnico"
             ),
         )
+
+
+class RegraManutencaoInvalida(HTTPException):
+    def __init__(self, detalhe: str) -> None:
+        super().__init__(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=detalhe,
+        )

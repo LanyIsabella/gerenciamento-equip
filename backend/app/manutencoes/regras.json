@@ -1,0 +1,15 @@
+{
+  "manutencoes": {
+    "tipos": {
+      "Preventiva": {
+        "exige_data_conclusao_ao_concluir": true,
+        "custo_minimo": 0
+      },
+      "Corretiva": {
+        "exige_descricao": true,
+        "exige_data_conclusao_ao_concluir": true,
+        "custo_minimo": 0
+      }
+    }
+  }
+}
