@@ -25,5 +25,8 @@ class ResponsavelManutencaoInvalido(HTTPException):
     def __init__(self) -> None:
         super().__init__(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="O responsável pela manutenção deve ter o cargo tecnico",
+            detail=(
+                "O responsável pela manutenção deve ter o cargo "
+                "administrador ou técnico"
+            ),
         )

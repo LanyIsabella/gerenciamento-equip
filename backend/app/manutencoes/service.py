@@ -1,16 +1,21 @@
-from app.usuarios.enums import CargoUsuario
-
 from .erros import (EquipamentoManutencaoNaoEncontrado,
                      ManutencaoNaoEncontrada,
-                     ResponsavelManutencaoInvalido,
                      ResponsavelManutencaoNaoEncontrado)
+from .policies import PoliticaManutencao
 
 
 class _BaseManutencaoService:
-    def __init__(self, repositorio, equipamento_repositorio, usuario_repositorio):
+    def __init__(
+        self,
+        repositorio,
+        equipamento_repositorio,
+        usuario_repositorio,
+        politica: PoliticaManutencao | None = None,
+    ):
         self.repositorio = repositorio
         self.equipamento_repositorio = equipamento_repositorio
         self.usuario_repositorio = usuario_repositorio
+        self.politica = politica or PoliticaManutencao()
 
     def _validar_relacionamentos(self, dados: dict) -> None:
         equipamento = self.equipamento_repositorio.buscar_por_id(dados["id_equipamento"])
@@ -19,8 +24,7 @@ class _BaseManutencaoService:
         responsavel = self.usuario_repositorio.buscar_por_id(dados["id_responsavel"])
         if responsavel is None:
             raise ResponsavelManutencaoNaoEncontrado()
-        if responsavel.cargo != CargoUsuario.TECNICO:
-            raise ResponsavelManutencaoInvalido()
+        self.politica.validar(responsavel)
 
 
 class CadastroManutencaoService(_BaseManutencaoService):
@@ -56,12 +60,11 @@ class AtualizarManutencaoService(_BaseManutencaoService):
         manutencao = self.repositorio.buscar_por_id(id_manutencao)
         if manutencao is None:
             raise ManutencaoNaoEncontrada()
-        if "id_equipamento" in dados or "id_responsavel" in dados:
-            relacionamentos = {
-                "id_equipamento": dados.get("id_equipamento", manutencao.id_equipamento),
-                "id_responsavel": dados.get("id_responsavel", manutencao.id_responsavel),
-            }
-            self._validar_relacionamentos(relacionamentos)
+        relacionamentos = {
+            "id_equipamento": dados.get("id_equipamento", manutencao.id_equipamento),
+            "id_responsavel": dados.get("id_responsavel", manutencao.id_responsavel),
+        }
+        self._validar_relacionamentos(relacionamentos)
         return self.repositorio.atualizar(manutencao, dados)
 
 
