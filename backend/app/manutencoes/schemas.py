@@ -57,6 +57,10 @@ class ManutencaoAtualizar(BaseModel):
         return valor
 
 
+class ManutencaoEncerrar(BaseModel):
+    data_conclusao: date
+
+
 class ManutencaoPublico(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

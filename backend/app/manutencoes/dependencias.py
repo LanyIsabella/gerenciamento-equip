@@ -1,13 +1,19 @@
+from app.database import get_db
+from app.equipamentos.repository import EquipamentoRepository
+from app.equipamentos.service import AtualizarEquipamentoService
+from app.usuarios.repository import UsuarioRepository
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.database import get_db
-from app.equipamentos.repository import EquipamentoRepository
-from app.usuarios.repository import UsuarioRepository
+from .facade import EncerrarManutencaoFacade
 from .repository import ManutencaoRepository
-from .service import (ApagarManutencaoService, AtualizarManutencaoService,
-                      BuscarManutencaoService, CadastroManutencaoService,
-                      ListarManutencoesService)
+from .service import (
+    ApagarManutencaoService,
+    AtualizarManutencaoService,
+    BuscarManutencaoService,
+    CadastroManutencaoService,
+    ListarManutencoesService,
+)
 
 
 def obter_repositorio(session: Session = Depends(get_db)) -> ManutencaoRepository:
@@ -44,3 +50,18 @@ def obter_service_atualizacao(deps=Depends(_dependencias)):
 
 def obter_service_exclusao(deps=Depends(_dependencias)):
     return ApagarManutencaoService(*deps)
+
+
+def obter_facade_encerramento(deps=Depends(_dependencias)):
+    repositorio, equipamento_repositorio, usuario_repositorio = deps
+    return EncerrarManutencaoFacade(
+        manutencao_service=AtualizarManutencaoService(
+            repositorio,
+            equipamento_repositorio,
+            usuario_repositorio,
+        ),
+        equipamento_service=AtualizarEquipamentoService(
+            equipamento_repositorio,
+            usuario_repositorio,
+        ),
+    )
