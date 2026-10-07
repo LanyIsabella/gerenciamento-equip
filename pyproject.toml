@@ -16,6 +16,13 @@ dependencies = [
     "alembic (>=1.19.2,<2.0.0)"
 ]
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+
+[tool.pytest.ini_options]
+pythonpath = ["backend"]
+testpaths = ["backend/tests"]
+
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

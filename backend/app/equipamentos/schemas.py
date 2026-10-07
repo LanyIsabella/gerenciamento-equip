@@ -1,10 +1,11 @@
 from datetime import date
 
 from app.categoria.schemas import CategoriaResumo
+from app.validacao import validar_tamanho_maximo
 from app.usuarios.schemas import UsuarioResumo
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from .service import normalizar_patrimonio
+from .validadores import normalizar_patrimonio
 
 
 class EquipamentoCriar(BaseModel):
@@ -19,9 +20,7 @@ class EquipamentoCriar(BaseModel):
     @field_validator("nome")
     @classmethod
     def validar_nome(cls, valor: str) -> str:
-        if len(valor) > 100:
-            raise ValueError("nome deve ter no máximo 100 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "nome", 100)
 
     @field_validator("descricao")
     @classmethod
@@ -32,16 +31,12 @@ class EquipamentoCriar(BaseModel):
     @classmethod
     def validar_patrimonio(cls, valor: str) -> str:
         valor = normalizar_patrimonio(valor)
-        if len(valor) > 50:
-            raise ValueError("patrimonio deve ter no máximo 50 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "patrimonio", 50)
 
     @field_validator("status")
     @classmethod
     def validar_status(cls, valor: str) -> str:
-        if len(valor) > 30:
-            raise ValueError("status deve ter no máximo 30 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "status", 30)
 
 
 class EquipamentoPublico(BaseModel):
@@ -77,9 +72,7 @@ class EquipamentoAtualizar(BaseModel):
     @field_validator("nome")
     @classmethod
     def validar_nome(cls, valor: str | None) -> str | None:
-        if valor is not None and len(valor) > 100:
-            raise ValueError("nome deve ter no máximo 100 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "nome", 100)
 
     @field_validator("descricao")
     @classmethod
@@ -91,13 +84,9 @@ class EquipamentoAtualizar(BaseModel):
     def validar_patrimonio(cls, valor: str | None) -> str | None:
         if valor is not None:
             valor = normalizar_patrimonio(valor)
-        if valor is not None and len(valor) > 50:
-            raise ValueError("patrimonio deve ter no máximo 50 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "patrimonio", 50)
 
     @field_validator("status")
     @classmethod
     def validar_status(cls, valor: str | None) -> str | None:
-        if valor is not None and len(valor) > 30:
-            raise ValueError("status deve ter no máximo 30 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "status", 30)

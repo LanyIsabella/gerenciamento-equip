@@ -184,3 +184,37 @@ flutter_app/   aplicativo Flutter em camadas
 prototipo/     protótipo React original
 padroes/       catálogo dos padrões aplicados
 ```
+
+## Encontro de refatoração
+
+Usei estas seis perguntas na varredura do próprio código:
+
+1. Qual é a responsabilidade principal deste trecho?
+2. Existe lógica duplicada em outro lugar?
+3. Há dependências ou parâmetros que não são usados?
+4. O tamanho e a complexidade dificultam a leitura ou a mudança?
+5. O nome e o contrato deixam o comportamento claro?
+6. Existe um teste que protege o comportamento antes da mudança?
+
+### Cheiro 1 — validação duplicada e regra na camada errada
+
+O que doía: os schemas repetiam as mesmas validações de tamanho para criação
+e atualização, e `normalizar_patrimonio` ficava no service mesmo sendo usada
+durante a validação do schema.
+
+Antes:
+
+```python
+if len(valor) > 50:
+    raise ValueError("patrimonio deve ter no máximo 50 caracteres")
+```
+
+Depois:
+
+```python
+return validar_tamanho_maximo(valor, "patrimonio", 50)
+```
+
+`validar_tamanho_maximo` ficou em `backend/app/validacao.py`, e a normalização
+foi para `backend/app/equipamentos/validadores.py`. A suíte de caracterização
+foi executada antes e depois com `poetry run pytest -q` e permaneceu verde.
