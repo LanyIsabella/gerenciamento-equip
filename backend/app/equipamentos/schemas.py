@@ -14,7 +14,7 @@ class EquipamentoCriar(BaseModel):
     patrimonio: str
     status: str
     id_categoria: int
-    id_responsavel: int
+    id_responsavel: int | None = None
 
     @field_validator("nome")
     @classmethod

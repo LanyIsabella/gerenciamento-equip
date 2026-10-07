@@ -10,18 +10,19 @@ class EncerrarManutencaoFacade:
         self.manutencao_service = manutencao_service
         self.equipamento_service = equipamento_service
 
-    def executar(self, id_manutencao: int, data_conclusao: date):
+    def executar(self, id_manutencao: int, data_conclusao: date, usuario_atual):
         manutencao = self.manutencao_service.atualizar(
             id_manutencao,
             {
                 "status": "Concluída",
                 "data_conclusao": data_conclusao,
             },
+            usuario_atual,
         )
 
-        self.equipamento_service.atualizar(
+        self.equipamento_service.atualizar_status_por_manutencao(
             manutencao.id_equipamento,
-            {"status": "Ativo"},
+            "Ativo",
         )
 
         return manutencao

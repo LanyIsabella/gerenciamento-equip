@@ -69,6 +69,7 @@ class EquipamentoRepository:
         busca: str | None = None,
         id_categoria: int | None = None,
         status: str | None = None,
+        id_responsavel: int | None = None,
     ) -> list[Equipamento]:
         consulta = (
             select(Equipamento)
@@ -93,6 +94,9 @@ class EquipamentoRepository:
 
         if status:
             consulta = consulta.where(Equipamento.status == status)
+
+        if id_responsavel is not None:
+            consulta = consulta.where(Equipamento.id_responsavel == id_responsavel)
 
         equipamentos = self.session.scalars(consulta).all()
 
