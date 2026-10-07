@@ -33,7 +33,7 @@ O arquivo `.env` não deve ser commitado.
 Na raiz do projeto:
 
 ```bash
-poetry install
+poetry install --no-root
 poetry run alembic -c backend/alembic.ini upgrade head
 poetry run alembic -c backend/alembic.ini check
 ```
@@ -184,3 +184,101 @@ flutter_app/   aplicativo Flutter em camadas
 prototipo/     protótipo React original
 padroes/       catálogo dos padrões aplicados
 ```
+
+## Encontro de refatoração
+
+Usei estas seis perguntas na varredura do próprio código:
+
+1. Qual é a responsabilidade principal deste trecho?
+2. Existe lógica duplicada em outro lugar?
+3. Há dependências ou parâmetros que não são usados?
+4. O tamanho e a complexidade dificultam a leitura ou a mudança?
+5. O nome e o contrato deixam o comportamento claro?
+6. Existe um teste que protege o comportamento antes da mudança?
+
+### Cheiro 1 — validação duplicada e regra na camada errada
+
+O que doía: os schemas repetiam as mesmas validações de tamanho para criação
+e atualização, e `normalizar_patrimonio` ficava no service mesmo sendo usada
+durante a validação do schema.
+
+Antes:
+
+```python
+if len(valor) > 50:
+    raise ValueError("patrimonio deve ter no máximo 50 caracteres")
+```
+
+Depois:
+
+```python
+return validar_tamanho_maximo(valor, "patrimonio", 50)
+```
+
+`validar_tamanho_maximo` ficou em `backend/app/validacao.py`, e a normalização
+foi para `backend/app/equipamentos/validadores.py`. A suíte de caracterização
+foi executada antes e depois com `poetry run pytest -q` e permaneceu verde.
+
+### Cheiro 2 — transação duplicada nos repositories
+
+O que doía: equipamentos, manutenções e usuários repetiam o mesmo bloco de
+`commit`, `rollback` e propagação da exceção. Uma mudança nessa política de
+transação precisaria ser feita em três lugares.
+
+Antes:
+
+```python
+try:
+    self.session.commit()
+except Exception:
+    self.session.rollback()
+    raise
+```
+
+Depois:
+
+```python
+self._confirmar()
+```
+
+O comportamento comum foi extraído para `RepositorioBase._confirmar`, usado
+pelos três repositories. O teste de falha de commit passou com 3 testes verdes
+antes e depois da alteração.
+
+### Cheiro 3 — dependência morta nos services de equipamentos
+
+O que doía: `CadastroEquipamentoService` e `AtualizarEquipamentoService`
+recebiam `UsuarioRepository`, mas não consultavam esse objeto. A dependência
+aparecia também nas factories do FastAPI e no Facade, aumentando o acoplamento
+sem acrescentar comportamento.
+
+Antes:
+
+```python
+def __init__(self, repositorio, usuario_repositorio, politica=None):
+    self.repositorio = repositorio
+    self.usuario_repositorio = usuario_repositorio
+```
+
+Depois:
+
+```python
+def __init__(self, repositorio, politica=None):
+    self.repositorio = repositorio
+    self.politica = politica or PoliticaCriacaoEquipamento()
+```
+
+As dependências do FastAPI e a criação do service no Facade agora entregam
+somente o repository usado. O teste do fluxo de cadastro e alteração passou
+com 4 testes verdes antes e depois.
+
+### Rede de segurança
+
+Os testes Python ficam em `backend/tests/` e são executados com:
+
+```bash
+poetry run pytest -q
+```
+
+Cada refatoração foi feita com a suíte verde antes e depois, sem adicionar
+funcionalidade ao domínio.

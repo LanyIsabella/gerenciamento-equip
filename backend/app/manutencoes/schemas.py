@@ -1,6 +1,7 @@
 from datetime import date
 
 from app.equipamentos.schemas import EquipamentoResumo
+from app.validacao import validar_tamanho_maximo
 from app.usuarios.schemas import UsuarioResumo
 from pydantic import BaseModel, ConfigDict, field_validator
 
@@ -20,16 +21,12 @@ class ManutencaoCriar(BaseModel):
     @field_validator("status")
     @classmethod
     def validar_status(cls, valor: str) -> str:
-        if len(valor) > 30:
-            raise ValueError("status deve ter no máximo 30 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "status", 30)
 
     @field_validator("tipo")
     @classmethod
     def validar_tipo(cls, valor: str) -> str:
-        if len(valor) > 50:
-            raise ValueError("tipo deve ter no máximo 50 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "tipo", 50)
 
 
 class ManutencaoAtualizar(BaseModel):
@@ -45,16 +42,12 @@ class ManutencaoAtualizar(BaseModel):
     @field_validator("status")
     @classmethod
     def validar_status(cls, valor: str | None) -> str | None:
-        if valor is not None and len(valor) > 30:
-            raise ValueError("status deve ter no máximo 30 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "status", 30)
 
     @field_validator("tipo")
     @classmethod
     def validar_tipo(cls, valor: str | None) -> str | None:
-        if valor is not None and len(valor) > 50:
-            raise ValueError("tipo deve ter no máximo 50 caracteres")
-        return valor
+        return validar_tamanho_maximo(valor, "tipo", 50)
 
 
 class ManutencaoEncerrar(BaseModel):

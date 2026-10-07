@@ -1,13 +1,11 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import joinedload
 
+from app.repository import RepositorioBase
 from .models import Manutencao
 
 
-class ManutencaoRepository:
-    def __init__(self, session: Session):
-        self.session = session
-
+class ManutencaoRepository(RepositorioBase):
     def _consulta_com_relacionamentos(self):
         return select(Manutencao).options(
             joinedload(Manutencao.equipamento),
@@ -16,13 +14,9 @@ class ManutencaoRepository:
 
     def cadastrar(self, dados: dict) -> Manutencao:
         manutencao = Manutencao(**dados)
-        try:
-            self.session.add(manutencao)
-            self.session.commit()
-            self.session.refresh(manutencao)
-        except Exception:
-            self.session.rollback()
-            raise
+        self.session.add(manutencao)
+        self._confirmar()
+        self.session.refresh(manutencao)
         return self.buscar_por_id(manutencao.id)
 
     def listar(
@@ -56,18 +50,10 @@ class ManutencaoRepository:
     def atualizar(self, manutencao: Manutencao, dados: dict) -> Manutencao:
         for campo, valor in dados.items():
             setattr(manutencao, campo, valor)
-        try:
-            self.session.commit()
-            self.session.refresh(manutencao)
-        except Exception:
-            self.session.rollback()
-            raise
+        self._confirmar()
+        self.session.refresh(manutencao)
         return self.buscar_por_id(manutencao.id)
 
     def apagar(self, manutencao: Manutencao) -> None:
-        try:
-            self.session.delete(manutencao)
-            self.session.commit()
-        except Exception:
-            self.session.rollback()
-            raise
+        self.session.delete(manutencao)
+        self._confirmar()
