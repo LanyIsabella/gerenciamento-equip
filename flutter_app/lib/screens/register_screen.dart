@@ -24,7 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
 
     if (cadastrado && mounted) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
     }
   }
 

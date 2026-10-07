@@ -59,9 +59,29 @@ class ApiClient {
         ? <String, dynamic>{}
         : jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      final detail = body['detail'] ?? 'Não foi possível concluir a operação';
-      throw ApiException(detail.toString(), response.statusCode);
+      throw ApiException(
+        _mensagemDeErro(body['detail']),
+        response.statusCode,
+      );
     }
     return body;
+  }
+
+  String _mensagemDeErro(dynamic detail) {
+    if (detail is String && detail.isNotEmpty) return detail;
+
+    if (detail is List) {
+      return detail.map((item) {
+        if (item is! Map) return item.toString();
+        final mensagem = item['msg']?.toString() ?? 'Campo inválido';
+        final local = item['loc'];
+        if (local is List && local.isNotEmpty) {
+          return '${local.last}: $mensagem';
+        }
+        return mensagem;
+      }).join('\n');
+    }
+
+    return 'Não foi possível concluir a operação';
   }
 }
