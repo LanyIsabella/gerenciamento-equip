@@ -62,6 +62,5 @@ def obter_facade_encerramento(deps=Depends(_dependencias)):
         ),
         equipamento_service=AtualizarEquipamentoService(
             equipamento_repositorio,
-            usuario_repositorio,
         ),
     )

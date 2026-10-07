@@ -1,5 +1,3 @@
-from app.usuarios.repository import UsuarioRepository
-
 from .erros import EquipamentoNaoEncontrado, PatrimonioJaCadastrado
 from .policies import PoliticaCriacaoEquipamento
 from .validadores import normalizar_patrimonio
@@ -9,11 +7,9 @@ class CadastroEquipamentoService:
     def __init__(
         self,
         repositorio,
-        usuario_repositorio: UsuarioRepository,
         politica: PoliticaCriacaoEquipamento | None = None,
     ):
         self.repositorio = repositorio
-        self.usuario_repositorio = usuario_repositorio
         self.politica = politica or PoliticaCriacaoEquipamento()
 
     def cadastrar(self, usuario_atual, **dados):
@@ -65,11 +61,9 @@ class AtualizarEquipamentoService:
     def __init__(
         self,
         repositorio,
-        usuario_repositorio: UsuarioRepository,
         politica: PoliticaCriacaoEquipamento | None = None,
     ):
         self.repositorio = repositorio
-        self.usuario_repositorio = usuario_repositorio
         self.politica = politica or PoliticaCriacaoEquipamento()
 
     def atualizar(self, id_equipamento: int, dados: dict, usuario_atual):

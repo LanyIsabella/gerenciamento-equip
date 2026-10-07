@@ -244,3 +244,41 @@ self._confirmar()
 O comportamento comum foi extraído para `RepositorioBase._confirmar`, usado
 pelos três repositories. O teste de falha de commit passou com 3 testes verdes
 antes e depois da alteração.
+
+### Cheiro 3 — dependência morta nos services de equipamentos
+
+O que doía: `CadastroEquipamentoService` e `AtualizarEquipamentoService`
+recebiam `UsuarioRepository`, mas não consultavam esse objeto. A dependência
+aparecia também nas factories do FastAPI e no Facade, aumentando o acoplamento
+sem acrescentar comportamento.
+
+Antes:
+
+```python
+def __init__(self, repositorio, usuario_repositorio, politica=None):
+    self.repositorio = repositorio
+    self.usuario_repositorio = usuario_repositorio
+```
+
+Depois:
+
+```python
+def __init__(self, repositorio, politica=None):
+    self.repositorio = repositorio
+    self.politica = politica or PoliticaCriacaoEquipamento()
+```
+
+As dependências do FastAPI e a criação do service no Facade agora entregam
+somente o repository usado. O teste do fluxo de cadastro e alteração passou
+com 4 testes verdes antes e depois.
+
+### Rede de segurança
+
+Os testes Python ficam em `backend/tests/` e são executados com:
+
+```bash
+poetry run pytest -q
+```
+
+Cada refatoração foi feita com a suíte verde antes e depois, sem adicionar
+funcionalidade ao domínio.
