@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'repositories/auth_repository.dart';
-import 'screens/login_screen.dart';
+import 'routes.dart';
 import 'services/api_client.dart';
-import 'services/auth_service.dart';
+import 'services/sessao_service.dart';
 
 void main() {
   final apiClient = ApiClient(baseUrl: 'http://localhost:8000');
-  final authRepository = ApiAuthRepository(apiClient);
-  final authService = AuthService(authRepository);
+  final repository = ApiAuthRepository(apiClient);
 
-  runApp(EquipControlApp(authService: authService));
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => SessaoService(repository),
+      child: const EquipControlApp(),
+    ),
+  );
 }
 
 class EquipControlApp extends StatelessWidget {
-  final AuthService authService;
-
-  const EquipControlApp({super.key, required this.authService});
+  const EquipControlApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EquipControl',
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo)),
-      home: LoginScreen(authService: authService),
+      initialRoute: AppRoutes.login,
+      routes: AppRoutes.routes,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        useMaterial3: true,
+      ),
     );
   }
 }

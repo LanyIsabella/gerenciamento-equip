@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../services/api_client.dart';
-import '../services/auth_service.dart';
-import 'home_screen.dart';
-import 'register_screen.dart';
+import '../routes.dart';
+import '../services/sessao_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  final AuthService authService;
-
-  const LoginScreen({super.key, required this.authService});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -17,36 +14,23 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final senhaController = TextEditingController();
-  String? erro;
-  bool carregando = false;
 
   Future<void> entrar() async {
-    setState(() {
-      erro = null;
-      carregando = true;
-    });
-    try {
-      await widget.authService.login(
-        emailController.text,
-        senhaController.text,
-      );
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => HomeScreen(authService: widget.authService),
-        ),
-      );
-    } on ApiException catch (exception) {
-      setState(() => erro = exception.message);
-    } catch (_) {
-      setState(() => erro = 'Não foi possível conectar à API');
-    } finally {
-      if (mounted) setState(() => carregando = false);
+    final sessao = context.read<SessaoService>();
+    final entrou = await sessao.entrar(
+      emailController.text,
+      senhaController.text,
+    );
+
+    if (entrou && mounted) {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final sessao = context.watch<SessaoService>();
+
     return Scaffold(
       body: Center(
         child: Container(
@@ -57,28 +41,35 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const Text('EquipControl', style: TextStyle(fontSize: 28)),
               const SizedBox(height: 24),
-              TextField(controller: emailController, decoration: const InputDecoration(labelText: 'E-mail')),
-              TextField(controller: senhaController, obscureText: true, decoration: const InputDecoration(labelText: 'Senha')),
-              if (erro != null) ...[
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: 'E-mail'),
+              ),
+              TextField(
+                controller: senhaController,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Senha'),
+              ),
+              if (sessao.erro != null) ...[
                 const SizedBox(height: 12),
-                Text(erro!, style: const TextStyle(color: Colors.red)),
+                Text(sessao.erro!, style: const TextStyle(color: Colors.red)),
               ],
               const SizedBox(height: 20),
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: carregando ? null : entrar,
-                      child: Text(carregando ? 'Entrando...' : 'Entrar'),
+                      onPressed: sessao.carregando ? null : entrar,
+                      child: Text(
+                        sessao.carregando ? 'Entrando...' : 'Entrar',
+                      ),
                     ),
                   ),
                 ],
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => RegisterScreen(authService: widget.authService),
-                  ),
+                onPressed: () => Navigator.of(context).pushNamed(
+                  AppRoutes.register,
                 ),
                 child: const Text('Criar cadastro'),
               ),

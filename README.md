@@ -137,8 +137,15 @@ flutter_app/lib/
 ├── models/
 ├── repositories/
 ├── screens/
-└── services/
+├── services/
+├── widgets/
+└── routes.dart
 ```
+
+As telas usam rotas nomeadas e as áreas protegidas passam pelo guarda de
+rotas. A sessão fica no `Provider`, com o token somente em memória; ao
+recarregar a página, o usuário precisa entrar novamente. O menu lateral
+permite acessar início, perfil, livros e sair limpando a pilha de navegação.
 
 Na primeira execução:
 
@@ -167,7 +174,7 @@ cd flutter_app
 flutter test
 ```
 
-Os testes usam um `FakeAuthRepository`, portanto não dependem de uma API real. Eles verificam o login, o armazenamento do token, a chamada de `GET /usuarios/eu` e a mensagem de erro para senha incorreta.
+Os testes usam um `FakeAuthRepository`, portanto não dependem de uma API real. Eles verificam o login, o armazenamento do token, a chamada de `GET /usuarios/eu`, a mensagem de erro para senha incorreta, o guarda de rotas, o menu e o logout.
 
 ## Estrutura principal
 
