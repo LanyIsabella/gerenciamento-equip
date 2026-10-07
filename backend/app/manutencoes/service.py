@@ -21,14 +21,14 @@ class _BaseManutencaoService:
         self.politica = politica or PoliticaManutencao()
         self.regras = regras or carregar_regras()
 
-    def _validar_relacionamentos(self, dados: dict) -> None:
+    def _validar_relacionamentos(self, dados: dict, usuario_atual) -> None:
         equipamento = self.equipamento_repositorio.buscar_por_id(dados["id_equipamento"])
         if equipamento is None:
             raise EquipamentoManutencaoNaoEncontrado()
         responsavel = self.usuario_repositorio.buscar_por_id(dados["id_responsavel"])
         if responsavel is None:
             raise ResponsavelManutencaoNaoEncontrado()
-        self.politica.validar(responsavel)
+        self.politica.validar(usuario_atual)
 
     def _validar_regras_tipo(self, dados: dict) -> None:
         if dados.get("tipo") is None:
@@ -79,8 +79,11 @@ class _BaseManutencaoService:
 
 
 class CadastroManutencaoService(_BaseManutencaoService):
-    def cadastrar(self, dados: dict):
-        self._validar_relacionamentos(dados)
+    def cadastrar(self, dados: dict, usuario_atual):
+        dados = dict(dados)
+        self.politica.validar(usuario_atual)
+        dados["id_responsavel"] = usuario_atual.id
+        self._validar_relacionamentos(dados, usuario_atual)
         self._validar_regras_tipo(dados)
         return self.repositorio.cadastrar(dados)
 
@@ -91,11 +94,13 @@ class ListarManutencoesService(_BaseManutencaoService):
         id_equipamento: int | None = None,
         tipo: str | None = None,
         status: str | None = None,
+        id_responsavel: int | None = None,
     ):
         return self.repositorio.listar(
             id_equipamento=id_equipamento,
             tipo=tipo,
             status=status,
+            id_responsavel=id_responsavel,
         )
 
 
@@ -108,7 +113,7 @@ class BuscarManutencaoService(_BaseManutencaoService):
 
 
 class AtualizarManutencaoService(_BaseManutencaoService):
-    def atualizar(self, id_manutencao: int, dados: dict):
+    def atualizar(self, id_manutencao: int, dados: dict, usuario_atual):
         manutencao = self.repositorio.buscar_por_id(id_manutencao)
         if manutencao is None:
             raise ManutencaoNaoEncontrada()
@@ -116,7 +121,9 @@ class AtualizarManutencaoService(_BaseManutencaoService):
             "id_equipamento": dados.get("id_equipamento", manutencao.id_equipamento),
             "id_responsavel": dados.get("id_responsavel", manutencao.id_responsavel),
         }
-        self._validar_relacionamentos(relacionamentos)
+        self._validar_relacionamentos(relacionamentos, usuario_atual)
+        dados = dict(dados)
+        dados.pop("id_responsavel", None)
         dados_completos = {
             "tipo": manutencao.tipo,
             "status": manutencao.status,

@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, Query, Response, status
 
+from app.auth import obter_usuario_atual
+
 from .dependencias import (
     obter_facade_encerramento,
     obter_service_atualizacao,
@@ -32,18 +34,24 @@ def listar(
     id_equipamento: int | None = Query(default=None),
     tipo: TipoManutencao | None = Query(default=None),
     status: str | None = Query(default=None),
+    usuario=Depends(obter_usuario_atual),
     service: ListarManutencoesService = Depends(obter_service_listagem),
 ):
     return service.listar(
         id_equipamento=id_equipamento,
         tipo=tipo,
         status=status,
+        id_responsavel=usuario.id,
     )
 
 
 @router.post("/", response_model=ManutencaoPublico, status_code=201)
-def criar(dados: ManutencaoCriar, service: CadastroManutencaoService = Depends(obter_service_cadastro)):
-    return service.cadastrar(dados.model_dump())
+def criar(
+    dados: ManutencaoCriar,
+    usuario=Depends(obter_usuario_atual),
+    service: CadastroManutencaoService = Depends(obter_service_cadastro),
+):
+    return service.cadastrar(dados.model_dump(exclude_none=True), usuario)
 
 
 @router.get("/{id_manutencao}", response_model=ManutencaoPublico)
@@ -52,17 +60,27 @@ def buscar(id_manutencao: int, service: BuscarManutencaoService = Depends(obter_
 
 
 @router.patch("/{id_manutencao}", response_model=ManutencaoPublico)
-def atualizar(id_manutencao: int, dados: ManutencaoAtualizar, service: AtualizarManutencaoService = Depends(obter_service_atualizacao)):
-    return service.atualizar(id_manutencao, dados.model_dump(exclude_unset=True))
+def atualizar(
+    id_manutencao: int,
+    dados: ManutencaoAtualizar,
+    usuario=Depends(obter_usuario_atual),
+    service: AtualizarManutencaoService = Depends(obter_service_atualizacao),
+):
+    return service.atualizar(
+        id_manutencao,
+        dados.model_dump(exclude_unset=True),
+        usuario,
+    )
 
 
 @router.patch("/{id_manutencao}/encerrar", response_model=ManutencaoPublico)
 def encerrar(
     id_manutencao: int,
     dados: ManutencaoEncerrar,
+    usuario=Depends(obter_usuario_atual),
     facade: EncerrarManutencaoFacade = Depends(obter_facade_encerramento),
 ):
-    return facade.executar(id_manutencao, dados.data_conclusao)
+    return facade.executar(id_manutencao, dados.data_conclusao, usuario)
 
 
 @router.delete("/{id_manutencao}", status_code=204)

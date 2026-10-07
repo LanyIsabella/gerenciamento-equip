@@ -1,189 +1,186 @@
 # EquipControl
 
-Sistema para gerenciamento de equipamentos, usuários e manutenções.
-
-O projeto possui:
-
-- API em FastAPI;
-- PostgreSQL como banco de dados;
-- SQLAlchemy 2 para persistência;
-- Alembic para migrações;
-- protótipo de interface em React, TanStack Router e Vite.
+Sistema básico para gerenciamento de equipamentos, usuários e manutenções.
 
 ## Pré-requisitos
-
-Instale:
 
 - Python 3.14 ou superior;
 - Poetry;
 - PostgreSQL;
-- Bun, para executar o protótipo da interface.
+- Flutter SDK para executar o aplicativo;
+- Chrome, emulador Android ou dispositivo conectado para executar o Flutter.
 
-## Configuração do banco
+## 1. Configurar o PostgreSQL e o ambiente
 
-Crie um banco PostgreSQL para o projeto. Exemplo usando `psql`:
+Crie um banco PostgreSQL:
 
 ```sql
 CREATE USER equipcontrol WITH PASSWORD 'sua_senha';
 CREATE DATABASE gerenciamento_equip OWNER equipcontrol;
 ```
 
-Na raiz do projeto, crie o arquivo `.env`:
+Copie `.env.example` para `.env` e ajuste os valores:
 
 ```env
 DATABASE_URL=postgresql+psycopg://equipcontrol:sua_senha@localhost:5432/gerenciamento_equip
+AUTH_SECRET=uma-chave-secreta-de-desenvolvimento
 ```
 
 O arquivo `.env` não deve ser commitado.
 
-## Instalação do back-end
+## 2. Instalar e migrar o backend
 
-Na raiz do projeto, instale as dependências Python:
+Na raiz do projeto:
 
 ```bash
 poetry install
-```
-
-O comando instala FastAPI, Uvicorn, SQLAlchemy, Psycopg, Pydantic Settings e Alembic.
-
-## Migrações do banco
-
-Com o `.env` configurado, aplique as migrações:
-
-```bash
 poetry run alembic -c backend/alembic.ini upgrade head
-```
-
-Para verificar se os models e o banco estão sincronizados:
-
-```bash
 poetry run alembic -c backend/alembic.ini check
 ```
 
-Para gerar uma nova revisão depois de alterar os models:
+O Alembic usa a mesma `DATABASE_URL` do backend. O relacionamento entre equipamentos e manutenções já está mapeado no SQLAlchemy com `ForeignKey` e `relationship`, e sua estrutura está registrada na migração inicial.
+
+Para criar uma nova migração depois de alterar um model:
 
 ```bash
 poetry run alembic -c backend/alembic.ini revision --autogenerate -m "descreva a alteração"
+poetry run alembic -c backend/alembic.ini upgrade head
 ```
 
-Revise a migration gerada antes de aplicá-la.
-
-## Executar a API
-
-Ainda na raiz do projeto:
+## 3. Executar a API
 
 ```bash
 poetry run uvicorn app.main:app --app-dir backend --reload
 ```
 
-A API ficará disponível em:
+Endereços:
 
-- http://localhost:8000
-- documentação Swagger: http://localhost:8000/docs
-- documentação ReDoc: http://localhost:8000/redoc
+- API: http://localhost:8000
+- Swagger: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
-## Principais endpoints
+O CORS está liberado para as portas locais usadas pelo desenvolvimento web.
 
-### Usuários
+### Autenticação
 
-Cadastrar usuário:
+Cadastre um usuário:
 
 ```http
 POST /usuarios/
+Content-Type: application/json
+
+{
+  "nome": "Usuário Teste",
+  "email": "teste@exemplo.com",
+  "senha": "senha123",
+  "cargo": "administrador"
+}
 ```
 
-Consultar usuários ativos por cargo para preencher listas suspensas:
+Faça login:
 
 ```http
-GET /usuarios/?cargo=gerente
-GET /usuarios/?cargo=tecnico
+POST /usuarios/login
+Content-Type: application/json
+
+{
+  "email": "teste@exemplo.com",
+  "senha": "senha123"
+}
 ```
 
-Equipamentos aceitam responsáveis com cargo `gerente`. Manutenções aceitam responsáveis com cargo `tecnico`.
+Use o `access_token` retornado como `Authorization: Bearer <token>`. O endpoint `GET /usuarios/eu` confirma o usuário autenticado.
+
+Ao criar equipamentos ou manutenções, o responsável é definido automaticamente como o usuário logado. As listagens retornam somente os registros desse usuário.
 
 ### Equipamentos
 
-```http
-GET    /equipamentos/
+```text
+GET    /equipamentos/?busca=notebook&id_categoria=1&status=Ativo
 POST   /equipamentos/
 GET    /equipamentos/{id_equipamento}
 PATCH  /equipamentos/{id_equipamento}
 DELETE /equipamentos/{id_equipamento}
 ```
 
-Filtros da listagem:
-
-```http
-GET /equipamentos/?busca=notebook&id_categoria=1&status=Ativo
-```
-
-- `busca`: procura por nome ou patrimônio;
-- `id_categoria`: filtra pela categoria;
-- `status`: filtra pelo status.
+O parâmetro `busca` pesquisa por nome ou patrimônio. Também é possível filtrar por categoria e status.
 
 ### Manutenções
 
-```http
-GET    /manutencoes/
+```text
+GET    /manutencoes/?tipo=Preventiva&status=Pendente
 POST   /manutencoes/
 GET    /manutencoes/{id_manutencao}
 PATCH  /manutencoes/{id_manutencao}
+PATCH  /manutencoes/{id_manutencao}/encerrar
 DELETE /manutencoes/{id_manutencao}
 ```
 
-Filtros da listagem:
+Os tipos aceitos são `Preventiva` e `Corretiva`. O encerramento usa o Facade, atualiza a manutenção e libera o equipamento relacionado.
 
-```http
-GET /manutencoes/?id_equipamento=1&tipo=Preventiva&status=Pendente
+## 4. Demonstrar a API pelo Swagger
+
+1. Inicie a API com o comando acima.
+2. Acesse http://localhost:8000/docs.
+3. Execute `POST /usuarios/` para criar um usuário.
+4. Execute `POST /usuarios/login` e copie o token.
+5. Clique em **Authorize**, informe `Bearer <token>` e confirme.
+6. Execute `GET /usuarios/eu`.
+7. Teste os endpoints de equipamentos e manutenções.
+
+## 5. Executar o aplicativo Flutter
+
+O aplicativo fica em `flutter_app/` e está dividido em:
+
+```text
+flutter_app/lib/
+├── models/
+├── repositories/
+├── screens/
+├── services/
+├── widgets/
+└── routes.dart
 ```
 
-- `id_equipamento`: filtra pelo equipamento;
-- `tipo`: filtra pelo tipo de manutenção;
-- `status`: filtra pelo status.
+As telas usam rotas nomeadas e as áreas protegidas passam pelo guarda de
+rotas. A sessão fica no `Provider`, com o token somente em memória; ao
+recarregar a página, o usuário precisa entrar novamente. O menu lateral
+permite acessar início, perfil, livros e sair limpando a pilha de navegação.
 
-## Executar o protótipo da interface
-
-Em outro terminal, na raiz do projeto:
+Na primeira execução:
 
 ```bash
-bun install
-bun run dev
+cd flutter_app
+flutter pub get
+flutter create .
+flutter run -d chrome
 ```
 
-O endereço exibido pelo Vite será usado para acessar a interface.
+O comando `flutter create .` apenas adiciona os arquivos de plataforma do projeto caso eles ainda não existam.
 
-Os arquivos da interface estão em `prototipo/`. Atualmente, o protótipo usa dados locais definidos em `prototipo/lib/mock-data.ts` e `prototipo/lib/app-store.tsx`; a API FastAPI e a interface podem ser executadas separadamente.
+Para um emulador Android, use:
+
+```bash
+flutter devices
+flutter run -d <id-do-dispositivo>
+```
+
+O aplicativo usa `http://localhost:8000` como endereço da API. Em um emulador Android, troque o endereço para `http://10.0.2.2:8000` em `flutter_app/lib/main.dart`.
+
+## 6. Testar o aplicativo
+
+```bash
+cd flutter_app
+flutter test
+```
+
+Os testes usam um `FakeAuthRepository`, portanto não dependem de uma API real. Eles verificam o login, o armazenamento do token, a chamada de `GET /usuarios/eu`, a mensagem de erro para senha incorreta, o guarda de rotas, o menu e o logout.
 
 ## Estrutura principal
 
 ```text
-backend/
-├── alembic/                 # migrações do banco
-├── alembic.ini              # configuração do Alembic
-└── app/
-    ├── categoria/           # model e schemas de categorias
-    ├── equipamentos/        # controller, service, repository e model
-    ├── manutencoes/         # controller, service, repository e model
-    ├── usuarios/            # cadastro e consulta por cargo
-    ├── config.py            # configurações do ambiente
-    ├── database.py          # engine e sessões SQLAlchemy
-    └── main.py              # aplicação FastAPI
-
-prototipo/                   # interface React/TanStack
+backend/       API FastAPI, models, services, repositories e Alembic
+flutter_app/   aplicativo Flutter em camadas
+prototipo/     protótipo React original
+padroes/       catálogo dos padrões aplicados
 ```
-
-## Desenvolvimento
-
-Verificar a compilação do back-end:
-
-```bash
-poetry run python -m compileall -q backend/app
-```
-
-Verificar o código do front-end:
-
-```bash
-bun run lint
-```
-
-Antes de abrir um pull request, confirme que as migrações foram aplicadas e que `alembic check` não encontrou alterações pendentes.

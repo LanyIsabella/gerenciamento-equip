@@ -22,9 +22,9 @@ class CadastroEquipamentoService:
         self.usuario_repositorio = usuario_repositorio
         self.politica = politica or PoliticaCriacaoEquipamento()
 
-    def cadastrar(self, **dados):
-        responsavel = self.usuario_repositorio.buscar_por_id(dados["id_responsavel"])
-        self.politica.validar(responsavel)
+    def cadastrar(self, usuario_atual, **dados):
+        self.politica.validar(usuario_atual)
+        dados["id_responsavel"] = usuario_atual.id
         dados["patrimonio"] = normalizar_patrimonio(dados["patrimonio"])
         if self.repositorio.buscar_por_patrimonio(dados["patrimonio"]):
             raise PatrimonioJaCadastrado()
@@ -40,11 +40,13 @@ class ListarEquipamentosService:
         busca: str | None = None,
         id_categoria: int | None = None,
         status: str | None = None,
+        id_responsavel: int | None = None,
     ):
         return self.repositorio.listar(
             busca=busca,
             id_categoria=id_categoria,
             status=status,
+            id_responsavel=id_responsavel,
         )
 
 
@@ -66,24 +68,35 @@ class BuscarEquipamentoService:
 
 
 class AtualizarEquipamentoService:
-    def __init__(self, repositorio, usuario_repositorio: UsuarioRepository):
+    def __init__(
+        self,
+        repositorio,
+        usuario_repositorio: UsuarioRepository,
+        politica: PoliticaCriacaoEquipamento | None = None,
+    ):
         self.repositorio = repositorio
         self.usuario_repositorio = usuario_repositorio
+        self.politica = politica or PoliticaCriacaoEquipamento()
 
-    def atualizar(self, id_equipamento: int, dados: dict):
+    def atualizar(self, id_equipamento: int, dados: dict, usuario_atual):
         equipamento = self.repositorio.buscar_por_id(id_equipamento)
         if equipamento is None:
             raise EquipamentoNaoEncontrado()
         dados = dict(dados)
-        id_responsavel = dados.get("id_responsavel", equipamento.id_responsavel)
-        responsavel = self.usuario_repositorio.buscar_por_id(id_responsavel)
-        self.politica.validar(responsavel)
+        self.politica.validar(usuario_atual)
+        dados.pop("id_responsavel", None)
         if "patrimonio" in dados:
             dados["patrimonio"] = normalizar_patrimonio(dados["patrimonio"])
             existente = self.repositorio.buscar_por_patrimonio(dados["patrimonio"])
             if existente is not None and existente.id != equipamento.id:
                 raise PatrimonioJaCadastrado()
         return self.repositorio.atualizar(equipamento, dados)
+
+    def atualizar_status_por_manutencao(self, id_equipamento: int, status: str):
+        equipamento = self.repositorio.buscar_por_id(id_equipamento)
+        if equipamento is None:
+            raise EquipamentoNaoEncontrado()
+        return self.repositorio.atualizar(equipamento, {"status": status})
 
 
 class ApagarEquipamentoService:

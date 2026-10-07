@@ -30,6 +30,7 @@ class ManutencaoRepository:
         id_equipamento: int | None = None,
         tipo: str | None = None,
         status: str | None = None,
+        id_responsavel: int | None = None,
     ) -> list[Manutencao]:
         consulta = self._consulta_com_relacionamentos().order_by(Manutencao.id)
 
@@ -41,6 +42,9 @@ class ManutencaoRepository:
 
         if status:
             consulta = consulta.where(Manutencao.status == status)
+
+        if id_responsavel is not None:
+            consulta = consulta.where(Manutencao.id_responsavel == id_responsavel)
 
         return list(self.session.scalars(consulta).all())
 

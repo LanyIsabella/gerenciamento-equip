@@ -9,7 +9,7 @@ from .enums import TipoManutencao
 
 class ManutencaoCriar(BaseModel):
     id_equipamento: int
-    id_responsavel: int
+    id_responsavel: int | None = None
     descricao: str
     status: str
     tipo: TipoManutencao

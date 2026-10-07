@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     database_url: str
+    auth_secret: str = "dev-secret-change-me"
 
     model_config = SettingsConfigDict(
         env_file=".env",

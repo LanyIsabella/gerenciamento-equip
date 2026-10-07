@@ -27,9 +27,30 @@ class UsuarioCriar(BaseModel):
     @field_validator("senha")
     @classmethod
     def validar_senha(cls, valor: str) -> str:
+        valor = valor.strip()
+        if len(valor) < 6:
+            raise ValueError("senha deve ter pelo menos 6 caracteres")
         if len(valor) > 255:
             raise ValueError("senha deve ter no máximo 255 caracteres")
         return valor
+
+
+class LoginRequest(BaseModel):
+    email: str
+    senha: str
+
+    @field_validator("email")
+    @classmethod
+    def validar_email_login(cls, valor: str) -> str:
+        valor = valor.strip().lower()
+        if "@" not in valor:
+            raise ValueError("informe um e-mail vÃ¡lido")
+        return valor
+
+
+class TokenPublico(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
 
 
 class UsuarioPublico(BaseModel):
