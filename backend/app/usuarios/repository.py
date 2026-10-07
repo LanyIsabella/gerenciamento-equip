@@ -1,14 +1,11 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from app.repository import RepositorioBase
 
 from .enums import CargoUsuario
 from .models import Usuario
 
 
-class UsuarioRepository:
-    def __init__(self, session: Session):
-        self.session = session
-
+class UsuarioRepository(RepositorioBase):
     def buscar_por_id(self, id_usuario: int) -> Usuario | None:
         return self.session.scalar(select(Usuario).where(Usuario.id == id_usuario))
 
@@ -17,13 +14,9 @@ class UsuarioRepository:
 
     def cadastrar(self, dados: dict) -> Usuario:
         usuario = Usuario(**dados)
-        try:
-            self.session.add(usuario)
-            self.session.commit()
-            self.session.refresh(usuario)
-        except Exception:
-            self.session.rollback()
-            raise
+        self.session.add(usuario)
+        self._confirmar()
+        self.session.refresh(usuario)
         return usuario
 
     def listar_por_cargo(self, cargo: CargoUsuario) -> list[Usuario]:

@@ -1,23 +1,17 @@
 from sqlalchemy import or_, select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import joinedload
 
+from app.repository import RepositorioBase
 from .models import Equipamento
 
 
-class EquipamentoRepository:
-    def __init__(self, session: Session):
-        self.session = session
-
+class EquipamentoRepository(RepositorioBase):
     def cadastrar(self, dados: dict) -> Equipamento:
         equipamento = Equipamento(**dados)
 
-        try:
-            self.session.add(equipamento)
-            self.session.commit()
-            self.session.refresh(equipamento)
-        except Exception:
-            self.session.rollback()
-            raise
+        self.session.add(equipamento)
+        self._confirmar()
+        self.session.refresh(equipamento)
 
         return self.buscar_por_id(equipamento.id)
 
@@ -48,21 +42,13 @@ class EquipamentoRepository:
     def atualizar(self, equipamento: Equipamento, dados: dict) -> Equipamento:
         for campo, valor in dados.items():
             setattr(equipamento, campo, valor)
-        try:
-            self.session.commit()
-            self.session.refresh(equipamento)
-        except Exception:
-            self.session.rollback()
-            raise
+        self._confirmar()
+        self.session.refresh(equipamento)
         return self.buscar_por_id(equipamento.id)
 
     def apagar(self, equipamento: Equipamento) -> None:
-        try:
-            self.session.delete(equipamento)
-            self.session.commit()
-        except Exception:
-            self.session.rollback()
-            raise
+        self.session.delete(equipamento)
+        self._confirmar()
 
     def listar(
         self,

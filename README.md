@@ -218,3 +218,29 @@ return validar_tamanho_maximo(valor, "patrimonio", 50)
 `validar_tamanho_maximo` ficou em `backend/app/validacao.py`, e a normalização
 foi para `backend/app/equipamentos/validadores.py`. A suíte de caracterização
 foi executada antes e depois com `poetry run pytest -q` e permaneceu verde.
+
+### Cheiro 2 — transação duplicada nos repositories
+
+O que doía: equipamentos, manutenções e usuários repetiam o mesmo bloco de
+`commit`, `rollback` e propagação da exceção. Uma mudança nessa política de
+transação precisaria ser feita em três lugares.
+
+Antes:
+
+```python
+try:
+    self.session.commit()
+except Exception:
+    self.session.rollback()
+    raise
+```
+
+Depois:
+
+```python
+self._confirmar()
+```
+
+O comportamento comum foi extraído para `RepositorioBase._confirmar`, usado
+pelos três repositories. O teste de falha de commit passou com 3 testes verdes
+antes e depois da alteração.
