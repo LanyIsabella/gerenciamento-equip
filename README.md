@@ -33,7 +33,7 @@ O arquivo `.env` não deve ser commitado.
 Na raiz do projeto:
 
 ```bash
-poetry install
+poetry install --no-root
 poetry run alembic -c backend/alembic.ini upgrade head
 poetry run alembic -c backend/alembic.ini check
 ```
