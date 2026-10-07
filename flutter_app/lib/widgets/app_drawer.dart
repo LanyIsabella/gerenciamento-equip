@@ -38,8 +38,9 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sair'),
-            onTap: () {
-              context.read<SessaoService>().sair();
+            onTap: () async {
+              await context.read<SessaoService>().sair();
+              if (!context.mounted) return;
               Navigator.of(context).pushNamedAndRemoveUntil(
                 AppRoutes.login,
                 (route) => false,
