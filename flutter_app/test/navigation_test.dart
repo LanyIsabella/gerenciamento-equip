@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 import 'package:equip_control_app/routes.dart';
+import 'package:equip_control_app/screens/equipamentos_screen.dart';
 import 'package:equip_control_app/screens/home_screen.dart';
 import 'package:equip_control_app/screens/login_screen.dart';
+import 'package:equip_control_app/screens/manutencoes_screen.dart';
 import 'package:equip_control_app/services/sessao_service.dart';
 import 'package:equip_control_app/widgets/route_guard.dart';
 
@@ -58,5 +60,38 @@ void main() {
 
     expect(find.byType(LoginScreen), findsOneWidget);
     expect(service.autenticada, isFalse);
+  });
+
+  testWidgets('menu oferece áreas do gerenciador', (tester) async {
+    final service = SessaoService(FakeAuthRepository());
+    await service.entrar('teste@exemplo.com', 'senha123');
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: service,
+        child: MaterialApp(
+          initialRoute: AppRoutes.home,
+          routes: {
+            AppRoutes.login: (_) => const LoginScreen(),
+            AppRoutes.home: (_) => const RouteGuard(child: HomeScreen()),
+            AppRoutes.equipamentos: (_) =>
+                const RouteGuard(child: EquipamentosScreen()),
+            AppRoutes.manutencoes: (_) =>
+                const RouteGuard(child: ManutencoesScreen()),
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Equipamentos'), findsAtLeastNWidgets(1));
+    expect(find.text('Manutenções'), findsOneWidget);
+
+    await tester.tap(find.text('Equipamentos').last);
+    await tester.pumpAndSettle();
+    expect(find.byType(EquipamentosScreen), findsOneWidget);
   });
 }

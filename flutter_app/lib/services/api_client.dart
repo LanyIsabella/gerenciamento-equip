@@ -54,13 +54,79 @@ class ApiClient {
     _json(response);
   }
 
+  Future<dynamic> getAutenticado(
+    String caminho,
+    String token, {
+    Map<String, String>? queryParameters,
+  }) async {
+    final response = await client.get(
+      _uri(caminho, queryParameters),
+      headers: _headers(token),
+    );
+    return _jsonValue(response);
+  }
+
+  Future<dynamic> postAutenticado(
+    String caminho,
+    String token,
+    Map<String, dynamic> dados,
+  ) async {
+    final response = await client.post(
+      _uri(caminho),
+      headers: _headers(token),
+      body: jsonEncode(dados),
+    );
+    return _jsonValue(response);
+  }
+
+  Future<dynamic> patchAutenticado(
+    String caminho,
+    String token,
+    Map<String, dynamic> dados,
+  ) async {
+    final response = await client.patch(
+      _uri(caminho),
+      headers: _headers(token),
+      body: jsonEncode(dados),
+    );
+    return _jsonValue(response);
+  }
+
+  Future<void> deleteAutenticado(String caminho, String token) async {
+    final response = await client.delete(
+      _uri(caminho),
+      headers: _headers(token),
+    );
+    _jsonValue(response);
+  }
+
+  Uri _uri(String caminho, [Map<String, String>? queryParameters]) {
+    return Uri.parse('$baseUrl$caminho').replace(
+      queryParameters: queryParameters == null || queryParameters.isEmpty
+          ? null
+          : queryParameters,
+    );
+  }
+
+  Map<String, String> _headers(String token) {
+    return {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+  }
+
   Map<String, dynamic> _json(http.Response response) {
-    final body = response.body.isEmpty
-        ? <String, dynamic>{}
-        : jsonDecode(response.body) as Map<String, dynamic>;
+    return _jsonValue(response) as Map<String, dynamic>;
+  }
+
+  dynamic _jsonValue(http.Response response) {
+    final body =
+        response.body.isEmpty ? <String, dynamic>{} : jsonDecode(response.body);
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw ApiException(
-        _mensagemDeErro(body['detail']),
+        body is Map<String, dynamic>
+            ? _mensagemDeErro(body['detail'])
+            : 'Não foi possível concluir a operação',
         response.statusCode,
       );
     }

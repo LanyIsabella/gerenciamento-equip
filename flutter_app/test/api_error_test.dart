@@ -24,7 +24,8 @@ void main() {
       ),
       throwsA(
         predicate<ApiException>(
-          (erro) => erro.message == 'E-mail já cadastrado' && erro.statusCode == 409,
+          (erro) =>
+              erro.message == 'E-mail já cadastrado' && erro.statusCode == 409,
         ),
       ),
     );

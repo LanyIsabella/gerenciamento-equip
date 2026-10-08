@@ -146,7 +146,8 @@ As telas usam rotas nomeadas e as áreas protegidas passam pelo guarda de
 rotas. A sessão fica no `Provider`, e o token é salvo pelo repositório de
 `SharedPreferences`; ao recarregar a página, a sessão é restaurada quando o
 token ainda é aceito pela API. O menu lateral permite acessar início, perfil,
-livros e sair limpando a pilha de navegação e o token persistido.
+equipamentos, manutenções, perfil e sair limpando a pilha de navegação e o
+token persistido.
 
 Na primeira execução:
 

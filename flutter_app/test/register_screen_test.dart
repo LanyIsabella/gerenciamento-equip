@@ -10,7 +10,8 @@ import 'package:equip_control_app/services/sessao_service.dart';
 import 'fake_auth_repository.dart';
 
 void main() {
-  testWidgets('mostra erro de cadastro sem expor status ou JSON', (tester) async {
+  testWidgets('mostra erro de cadastro sem expor status ou JSON',
+      (tester) async {
     final repository = FakeAuthRepository()
       ..erroNoCadastro = 'E-mail já cadastrado';
 
