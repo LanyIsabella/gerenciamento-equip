@@ -15,7 +15,8 @@ class RouteGuard extends StatelessWidget {
     if (autenticada) return child;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted && ModalRoute.of(context)?.settings.name != AppRoutes.login) {
+      if (context.mounted &&
+          ModalRoute.of(context)?.settings.name != AppRoutes.login) {
         Navigator.of(context).pushReplacementNamed(AppRoutes.login);
       }
     });
