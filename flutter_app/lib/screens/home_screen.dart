@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/date_format.dart';
 import '../routes.dart';
 import '../services/equipamentos_service.dart';
 import '../services/manutencoes_service.dart';
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return AppShell(
       title: 'Olá, ${usuario?.nome.split(' ').first ?? 'usuário'}',
       description:
-          'Sessão ativa com perfil ${usuario?.cargo ?? 'usuário'}. Veja o panorama da operação.',
+          'Sessão ativa com perfil ${usuario?.cargo.rotulo ?? 'usuário'}. Veja o panorama da operação.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -108,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             style:
                                 const TextStyle(fontWeight: FontWeight.w700)),
                         subtitle: Text(
-                            '${item.tipo} · aberta em ${item.dataAbertura}'),
+                            '${item.tipo} · aberta em ${formatarDataBr(item.dataAbertura)}'),
                         trailing: StatusBadge(item.status),
                       );
                     }).toList(),

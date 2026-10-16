@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/date_format.dart';
 import '../models/manutencao.dart';
 import '../services/equipamentos_service.dart';
 import '../services/manutencoes_service.dart';
@@ -28,8 +29,12 @@ class _ManutencoesScreenState extends State<ManutencoesScreen> {
   EquipamentosService? get equipamentos => context.read<EquipamentosService?>();
 
   bool get podeGerenciar {
-    final cargo = context.read<SessaoService>().usuario?.cargo.toLowerCase();
-    return cargo == 'administrador' || cargo == 'tecnico';
+    return context
+            .read<SessaoService>()
+            .usuario
+            ?.cargo
+            .podeGerenciarManutencoes ??
+        false;
   }
 
   @override
@@ -63,7 +68,7 @@ class _ManutencoesScreenState extends State<ManutencoesScreen> {
 
     return AppShell(
       title: 'Manutenções',
-      description: '${itens.length} ordens retornadas pela API.',
+      description: '${itens.length} ordens de manutenção cadastradas.',
       action: podeGerenciar
           ? ElevatedButton.icon(
               onPressed: () => _abrirFormulario(),
@@ -104,8 +109,8 @@ class _ManutencoesScreenState extends State<ManutencoesScreen> {
           else
             LayoutBuilder(
               builder: (context, constraints) => constraints.maxWidth < 820
-                  ? _Cards(itens, podeGerenciar, _abrirFormulario, _excluir,
-                      _encerrar)
+                  ? _Cards(itens, podeGerenciar, _detalhes, _abrirFormulario,
+                      _excluir, _encerrar)
                   : _Tabela(itens, podeGerenciar, _abrirFormulario, _excluir,
                       _encerrar),
             ),
@@ -116,20 +121,21 @@ class _ManutencoesScreenState extends State<ManutencoesScreen> {
 
   Future<void> _abrirFormulario([Manutencao? existente]) async {
     final listaEquipamentos = equipamentos?.itens ?? const [];
+    if (service == null) return;
     final dados = await showManutencaoForm(
       context,
       equipamentos: listaEquipamentos,
       inicial: existente,
+      onSubmit: (dados) async {
+        final sucesso = existente == null
+            ? await service!.criar(dados)
+            : await service!.atualizar(existente.id, dados);
+        return sucesso
+            ? null
+            : service!.erro ?? 'Não foi possível salvar a manutenção.';
+      },
     );
-    if (dados == null || !mounted || service == null) return;
-    final sucesso = existente == null
-        ? await service!.criar(dados)
-        : await service!.atualizar(existente.id, dados);
-    if (mounted) {
-      _avisar(sucesso
-          ? 'Manutenção salva com sucesso.'
-          : service!.erro ?? 'Não foi possível salvar.');
-    }
+    if (dados != null && mounted) _avisar('Manutenção salva com sucesso.');
   }
 
   Future<void> _excluir(Manutencao manutencao) async {
@@ -170,6 +176,50 @@ class _ManutencoesScreenState extends State<ManutencoesScreen> {
           ? 'Manutenção encerrada.'
           : service?.erro ?? 'Não foi possível encerrar.');
     }
+  }
+
+  void _detalhes(Manutencao manutencao) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Manutenção #${manutencao.id}'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Detalhe(
+                  label: 'Equipamento', value: manutencao.equipamento.nome),
+              _Detalhe(label: 'Descrição', value: manutencao.descricao),
+              _Detalhe(label: 'Tipo', value: manutencao.tipo),
+              _Detalhe(label: 'Status', value: manutencao.status),
+              _Detalhe(
+                label: 'Abertura',
+                value: formatarDataBr(manutencao.dataAbertura),
+              ),
+              _Detalhe(
+                label: 'Conclusão',
+                value: formatarDataBr(manutencao.dataConclusao) == ''
+                    ? 'Em aberto'
+                    : formatarDataBr(manutencao.dataConclusao),
+              ),
+              _Detalhe(
+                label: 'Custo',
+                value: 'R\$ ${manutencao.custo.toStringAsFixed(2)}',
+              ),
+              _Detalhe(
+                  label: 'Responsável', value: manutencao.responsavel.nome),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Fechar'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _avisar(String mensagem) {
@@ -262,7 +312,7 @@ class _Campo extends StatelessWidget {
   }
 }
 
-class _Tabela extends StatelessWidget {
+class _Tabela extends StatefulWidget {
   final List<Manutencao> itens;
   final bool podeGerenciar;
   final ValueChanged<Manutencao> editar;
@@ -273,40 +323,180 @@ class _Tabela extends StatelessWidget {
       this.itens, this.podeGerenciar, this.editar, this.excluir, this.encerrar);
 
   @override
+  State<_Tabela> createState() => _TabelaState();
+}
+
+class _TabelaState extends State<_Tabela> {
+  int? expandida;
+
+  Map<int, TableColumnWidth> get _colunas => const {
+        0: FlexColumnWidth(0.5),
+        1: FlexColumnWidth(2.4),
+        2: FlexColumnWidth(1.1),
+        3: FlexColumnWidth(1.2),
+        4: FlexColumnWidth(1.2),
+        5: FlexColumnWidth(2.1),
+      };
+
+  @override
   Widget build(BuildContext context) {
     return Card(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Equipamento')),
-            DataColumn(label: Text('Descrição')),
-            DataColumn(label: Text('Tipo')),
-            DataColumn(label: Text('Status')),
-            DataColumn(label: Text('Abertura')),
-            DataColumn(label: Text('Custo')),
-            DataColumn(label: Text('Responsável')),
-            DataColumn(label: Text('Ações')),
-          ],
-          rows: itens
-              .map(
-                (item) => DataRow(cells: [
-                  DataCell(Text(item.id.toString())),
-                  DataCell(Text(item.equipamento.nome)),
-                  DataCell(Text(item.descricao)),
-                  DataCell(Text(item.tipo)),
-                  DataCell(StatusBadge(item.status)),
-                  DataCell(Text(item.dataAbertura)),
-                  DataCell(Text('R\$ ${item.custo.toStringAsFixed(2)}')),
-                  DataCell(Text(item.responsavel.nome)),
-                  DataCell(
-                      _Acoes(item, podeGerenciar, editar, excluir, encerrar)),
-                ]),
-              )
-              .toList(),
-        ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Container(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Table(
+              columnWidths: _colunas,
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: [
+                TableRow(
+                  children: [
+                    'ID',
+                    'Equipamento',
+                    'Tipo',
+                    'Status',
+                    'Abertura',
+                    'Ações'
+                  ].map(_cabecalho).toList(),
+                ),
+              ],
+            ),
+          ),
+          for (final item in widget.itens)
+            _LinhaTabela(
+              item: item,
+              podeGerenciar: widget.podeGerenciar,
+              expandida: expandida == item.id,
+              colunas: _colunas,
+              onDetalhes: () => setState(
+                () => expandida = expandida == item.id ? null : item.id,
+              ),
+              onEditar: () => widget.editar(item),
+              onExcluir: () => widget.excluir(item),
+              onEncerrar: () => widget.encerrar(item),
+            ),
+        ],
       ),
+    );
+  }
+
+  Widget _cabecalho(String texto) {
+    return Text(texto, style: const TextStyle(fontWeight: FontWeight.w700));
+  }
+}
+
+class _LinhaTabela extends StatelessWidget {
+  final Manutencao item;
+  final bool podeGerenciar;
+  final bool expandida;
+  final Map<int, TableColumnWidth> colunas;
+  final VoidCallback onDetalhes;
+  final VoidCallback onEditar;
+  final VoidCallback onExcluir;
+  final VoidCallback onEncerrar;
+
+  const _LinhaTabela({
+    required this.item,
+    required this.podeGerenciar,
+    required this.expandida,
+    required this.colunas,
+    required this.onDetalhes,
+    required this.onEditar,
+    required this.onExcluir,
+    required this.onEncerrar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Table(
+            columnWidths: colunas,
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            children: [
+              TableRow(
+                children: [
+                  Text(item.id.toString()),
+                  Text(item.equipamento.nome,
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(item.tipo, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: StatusBadge(item.status),
+                  ),
+                  Text(formatarDataBr(item.dataAbertura),
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  _acoes(context),
+                ],
+              ),
+            ],
+          ),
+        ),
+        if (expandida)
+          Container(
+            width: double.infinity,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Wrap(
+              spacing: 28,
+              runSpacing: 8,
+              children: [
+                _Detalhe(label: 'Descrição', value: item.descricao),
+                _Detalhe(
+                  label: 'Custo',
+                  value: 'R\$ ${item.custo.toStringAsFixed(2)}',
+                ),
+                _Detalhe(label: 'Responsável', value: item.responsavel.nome),
+                _Detalhe(
+                  label: 'Conclusão',
+                  value: formatarDataBr(item.dataConclusao) == ''
+                      ? 'Em aberto'
+                      : formatarDataBr(item.dataConclusao),
+                ),
+              ],
+            ),
+          ),
+        const Divider(height: 1),
+      ],
+    );
+  }
+
+  Widget _acoes(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.end,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        TextButton.icon(
+          onPressed: onDetalhes,
+          icon: Icon(
+            expandida ? Icons.keyboard_arrow_up : Icons.visibility_outlined,
+            size: 18,
+          ),
+          label: Text(expandida ? 'Ocultar' : 'Detalhes'),
+        ),
+        if (podeGerenciar)
+          IconButton(
+            tooltip: 'Editar',
+            onPressed: onEditar,
+            icon: const Icon(Icons.edit_outlined, size: 20),
+          ),
+        if (podeGerenciar && item.status != 'Concluída')
+          IconButton(
+            tooltip: 'Encerrar',
+            onPressed: onEncerrar,
+            icon: const Icon(Icons.check_circle_outline, size: 20),
+          ),
+        if (podeGerenciar)
+          IconButton(
+            tooltip: 'Excluir',
+            onPressed: onExcluir,
+            icon: const Icon(Icons.delete_outline, size: 20),
+          ),
+      ],
     );
   }
 }
@@ -314,12 +504,13 @@ class _Tabela extends StatelessWidget {
 class _Cards extends StatelessWidget {
   final List<Manutencao> itens;
   final bool podeGerenciar;
+  final ValueChanged<Manutencao> detalhes;
   final ValueChanged<Manutencao> editar;
   final ValueChanged<Manutencao> excluir;
   final ValueChanged<Manutencao> encerrar;
 
-  const _Cards(
-      this.itens, this.podeGerenciar, this.editar, this.excluir, this.encerrar);
+  const _Cards(this.itens, this.podeGerenciar, this.detalhes, this.editar,
+      this.excluir, this.encerrar);
 
   @override
   Widget build(BuildContext context) {
@@ -328,12 +519,56 @@ class _Cards extends StatelessWidget {
           .map(
             (item) => Card(
               margin: const EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                leading: const Icon(Icons.build_outlined),
-                title: Text(item.equipamento.nome),
-                subtitle: Text('${item.tipo} · ${item.dataAbertura}'),
-                trailing:
-                    _Acoes(item, podeGerenciar, editar, excluir, encerrar),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(right: 12),
+                          child: Icon(Icons.build_outlined),
+                        ),
+                        Expanded(
+                          child: Text(
+                            item.equipamento.nome,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        StatusBadge(item.status),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text('${item.tipo} · ${formatarDataBr(item.dataAbertura)}'),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => detalhes(item),
+                        icon: const Icon(Icons.visibility_outlined, size: 18),
+                        label: const Text('Ver detalhes'),
+                      ),
+                    ),
+                    if (podeGerenciar) ...[
+                      const SizedBox(height: 4),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: _Acoes(
+                          item,
+                          podeGerenciar,
+                          detalhes,
+                          editar,
+                          excluir,
+                          encerrar,
+                          mostrarDetalhes: false,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
           )
@@ -345,18 +580,27 @@ class _Cards extends StatelessWidget {
 class _Acoes extends StatelessWidget {
   final Manutencao item;
   final bool podeGerenciar;
+  final ValueChanged<Manutencao> detalhes;
   final ValueChanged<Manutencao> editar;
   final ValueChanged<Manutencao> excluir;
   final ValueChanged<Manutencao> encerrar;
+  final bool mostrarDetalhes;
 
-  const _Acoes(
-      this.item, this.podeGerenciar, this.editar, this.excluir, this.encerrar);
+  const _Acoes(this.item, this.podeGerenciar, this.detalhes, this.editar,
+      this.excluir, this.encerrar,
+      {this.mostrarDetalhes = true});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 0,
       children: [
+        if (mostrarDetalhes)
+          IconButton(
+            tooltip: 'Ver detalhes',
+            onPressed: () => detalhes(item),
+            icon: const Icon(Icons.visibility_outlined, size: 20),
+          ),
         if (podeGerenciar)
           IconButton(
             tooltip: 'Editar',
@@ -376,6 +620,32 @@ class _Acoes extends StatelessWidget {
             icon: const Icon(Icons.delete_outline, size: 20),
           ),
       ],
+    );
+  }
+}
+
+class _Detalhe extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _Detalhe({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: RichText(
+        text: TextSpan(
+          style: DefaultTextStyle.of(context).style,
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            TextSpan(text: value),
+          ],
+        ),
+      ),
     );
   }
 }

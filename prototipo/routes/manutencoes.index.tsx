@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, StatusBadge } from "@/components/AppShell";
@@ -58,6 +58,7 @@ function GuiaManutencoes() {
   const [tipo, setTipo] = useState("todos");
   const [status, setStatus] = useState("todos");
   const [aExcluir, setAExcluir] = useState<number | null>(null);
+  const [expandida, setExpandida] = useState<number | null>(null);
 
   const lista = manutencoes.filter(
     (m) =>
@@ -125,67 +126,173 @@ function GuiaManutencoes() {
         </Select>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-panel">
-        <table className="w-full min-w-[950px] text-left text-sm">
+      <div className="grid gap-3 xl:hidden">
+        {lista.map((m) => (
+          <article key={m.id} className="rounded-lg border border-border bg-card p-4 shadow-panel">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate font-medium text-foreground">
+                  {nomeEquipamento(m.equipamento_id)}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  #{m.id} · {m.tipo} · {formatarData(m.data_abertura)}
+                </p>
+              </div>
+              <StatusBadge status={m.status} />
+            </div>
+
+            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div className="min-w-0">
+                <dt className="text-muted-foreground">Descrição</dt>
+                <dd className="truncate text-foreground">{m.descricao}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Custo</dt>
+                <dd className="text-foreground">{formatarMoeda(m.custo)}</dd>
+              </div>
+              <div className="min-w-0">
+                <dt className="text-muted-foreground">Responsável</dt>
+                <dd className="truncate text-foreground">{nomeUsuario(m.id_responsavel)}</dd>
+              </div>
+            </dl>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button asChild variant="outline" className="min-w-[150px] flex-1">
+                <Link to="/manutencoes/$id" params={{ id: String(m.id) }}>
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                  Ver detalhes
+                </Link>
+              </Button>
+              {gerencia ? (
+                <>
+                  <Button asChild variant="ghost" size="icon" aria-label="Editar">
+                    <Link to="/manutencoes/$id/editar" params={{ id: String(m.id) }}>
+                      <Pencil className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Excluir"
+                    onClick={() => setAExcluir(m.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
+                  </Button>
+                </>
+              ) : null}
+            </div>
+          </article>
+        ))}
+        {lista.length === 0 ? (
+          <div className="rounded-lg border border-border bg-card px-4 py-10 text-center text-muted-foreground shadow-panel">
+            Nenhuma manutenÃ§Ã£o encontrada com os filtros aplicados.
+          </div>
+        ) : null}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-lg border border-border bg-card shadow-panel xl:block">
+        <table className="w-full table-fixed text-left text-sm">
+          <colgroup>
+            <col className="w-[5%]" />
+            <col className="w-[27%]" />
+            <col className="w-[13%]" />
+            <col className="w-[13%]" />
+            <col className="w-[15%]" />
+            <col className="w-[27%]" />
+          </colgroup>
           <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-4 py-3">ID</th>
               <th className="px-4 py-3">Equipamento</th>
-              <th className="px-4 py-3">Descrição</th>
               <th className="px-4 py-3">Tipo</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Abertura</th>
-              <th className="px-4 py-3">Custo</th>
-              <th className="px-4 py-3">Responsável</th>
               <th className="px-4 py-3 text-right">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {lista.map((m) => (
-              <tr key={m.id} className="hover:bg-muted/50">
-                <td className="px-4 py-3 text-muted-foreground">{m.id}</td>
-                <td className="px-4 py-3 font-medium text-foreground">
-                  {nomeEquipamento(m.equipamento_id)}
-                </td>
-                <td className="max-w-[240px] truncate px-4 py-3">{m.descricao}</td>
-                <td className="px-4 py-3">{m.tipo}</td>
-                <td className="px-4 py-3">
-                  <StatusBadge status={m.status} />
-                </td>
-                <td className="px-4 py-3">{formatarData(m.data_abertura)}</td>
-                <td className="px-4 py-3">{formatarMoeda(m.custo)}</td>
-                <td className="px-4 py-3">{nomeUsuario(m.id_responsavel)}</td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-1">
-                    <Button asChild variant="ghost" size="icon" aria-label="Ver detalhes">
-                      <Link to="/manutencoes/$id" params={{ id: String(m.id) }}>
-                        <Eye className="h-4 w-4" aria-hidden="true" />
-                      </Link>
-                    </Button>
-                    {gerencia ? (
-                      <>
-                        <Button asChild variant="ghost" size="icon" aria-label="Editar">
-                          <Link to="/manutencoes/$id/editar" params={{ id: String(m.id) }}>
-                            <Pencil className="h-4 w-4" aria-hidden="true" />
-                          </Link>
-                        </Button>
+            {lista.map((m) => {
+              const estaExpandida = expandida === m.id;
+
+              return (
+                <Fragment key={m.id}>
+                  <tr className={estaExpandida ? "bg-muted/50" : "hover:bg-muted/50"}>
+                    <td className="px-4 py-3 text-muted-foreground">{m.id}</td>
+                    <td className="truncate px-4 py-3 font-medium text-foreground">
+                      {nomeEquipamento(m.equipamento_id)}
+                    </td>
+                    <td className="truncate px-4 py-3">{m.tipo}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={m.status} />
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3">
+                      {formatarData(m.data_abertura)}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-3">
+                      <div className="flex justify-end gap-1">
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Excluir"
-                          onClick={() => setAExcluir(m.id)}
+                          variant="outline"
+                          size="sm"
+                          aria-expanded={estaExpandida}
+                          onClick={() => setExpandida(estaExpandida ? null : m.id)}
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
+                          <Eye className="h-4 w-4" aria-hidden="true" />
+                          {estaExpandida ? "Ocultar" : "Detalhes"}
                         </Button>
-                      </>
-                    ) : null}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                        {gerencia ? (
+                          <>
+                            <Button asChild variant="ghost" size="icon" aria-label="Editar">
+                              <Link to="/manutencoes/$id/editar" params={{ id: String(m.id) }}>
+                                <Pencil className="h-4 w-4" aria-hidden="true" />
+                              </Link>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Excluir"
+                              onClick={() => setAExcluir(m.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
+                            </Button>
+                          </>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                  {estaExpandida ? (
+                    <tr className="bg-muted/30">
+                      <td colSpan={6} className="border-t border-border px-4 py-4">
+                        <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                          <div className="sm:col-span-2 lg:col-span-2">
+                            <dt className="text-muted-foreground">Descrição</dt>
+                            <dd className="mt-1 break-words text-foreground">{m.descricao}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">Custo</dt>
+                            <dd className="mt-1 text-foreground">{formatarMoeda(m.custo)}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">Responsável</dt>
+                            <dd className="mt-1 truncate text-foreground">
+                              {nomeUsuario(m.id_responsavel)}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">Conclusão</dt>
+                            <dd className="mt-1 text-foreground">
+                              {m.data_conclusao || "Em aberto"}
+                            </dd>
+                          </div>
+                        </dl>
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              );
+            })}
             {lista.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
                   Nenhuma manutenção encontrada com os filtros aplicados.
                 </td>
               </tr>

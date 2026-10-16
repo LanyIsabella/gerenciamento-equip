@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../routes.dart';
+import '../models/cargo_usuario.dart';
 import '../services/sessao_service.dart';
 import '../theme/app_theme.dart';
 
@@ -16,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final nomeController = TextEditingController();
   final emailController = TextEditingController();
   final senhaController = TextEditingController();
+  CargoUsuario cargo = CargoUsuario.visualizador;
 
   @override
   void dispose() {
@@ -30,6 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           nomeController.text,
           emailController.text,
           senhaController.text,
+          cargo: cargo,
         );
     if (cadastrado && mounted) {
       Navigator.of(context).pushReplacementNamed(AppRoutes.home);
@@ -69,6 +72,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: const InputDecoration(
                           labelText: 'Nome completo',
                           prefixIcon: Icon(Icons.person_outline)),
+                    ),
+                    const SizedBox(height: 14),
+                    DropdownButtonFormField<CargoUsuario>(
+                      initialValue: cargo,
+                      decoration: const InputDecoration(
+                        labelText: 'Perfil de acesso',
+                        prefixIcon: Icon(Icons.badge_outlined),
+                      ),
+                      items: CargoUsuario.values
+                          .map(
+                            (item) => DropdownMenuItem(
+                              value: item,
+                              child: Text(item.rotulo),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) setState(() => cargo = value);
+                      },
                     ),
                     const SizedBox(height: 14),
                     TextField(
