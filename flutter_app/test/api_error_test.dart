@@ -21,6 +21,7 @@ void main() {
         nome: 'Usuário',
         email: 'repetido@exemplo.com',
         senha: 'senha123',
+        cargo: 'visualizador',
       ),
       throwsA(
         predicate<ApiException>(
@@ -47,6 +48,7 @@ void main() {
         nome: 'Usuário',
         email: 'novo@exemplo.com',
         senha: '123',
+        cargo: 'visualizador',
       ),
       throwsA(
         predicate<ApiException>(

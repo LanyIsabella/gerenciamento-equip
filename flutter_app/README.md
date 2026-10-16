@@ -24,6 +24,10 @@ Para executar no Edge ou Windows, use um dispositivo disponível em
 - `widgets/`: shell visual, status e formulários das entidades;
 - `routes.dart`: rotas nomeadas e áreas protegidas.
 
+Os cargos disponíveis são Administrador, Gerente, Técnico e Visualizador. O
+administrador gerencia equipamentos e manutenções; o gerente gerencia
+equipamentos; o técnico gerencia manutenções; e o visualizador apenas consulta.
+
 As telas de equipamentos e manutenções consomem a API pelos repositories,
 enviando o token no cabeçalho `Authorization`. Os filtros são convertidos nos
 parâmetros da API e as ações de criar, editar, excluir e encerrar usam os

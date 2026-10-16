@@ -42,7 +42,7 @@ class ProfileScreen extends StatelessWidget {
                       Text(usuario?.nome ?? '',
                           style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 4),
-                      Text(usuario?.cargo ?? '',
+                      Text(usuario?.cargo.rotulo ?? '',
                           style: Theme.of(context).textTheme.bodyMedium),
                     ],
                   ),
@@ -54,7 +54,8 @@ class ProfileScreen extends StatelessWidget {
               _ItemPerfil(label: 'Nome completo', value: usuario?.nome ?? ''),
               _ItemPerfil(label: 'E-mail', value: usuario?.email ?? ''),
               _ItemPerfil(
-                  label: 'Perfil de acesso', value: usuario?.cargo ?? ''),
+                  label: 'Perfil de acesso',
+                  value: usuario?.cargo.rotulo ?? ''),
             ],
           ),
         ),

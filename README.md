@@ -40,6 +40,8 @@ poetry run alembic -c backend/alembic.ini check
 
 O Alembic usa a mesma `DATABASE_URL` do backend. O relacionamento entre equipamentos e manutenções já está mapeado no SQLAlchemy com `ForeignKey` e `relationship`, e sua estrutura está registrada na migração inicial.
 
+A migração seguinte insere as cinco categorias iniciais usadas pelo cadastro de equipamentos: máquinas pesadas, ferramentas elétricas, equipamentos de TI, veículos industriais e instrumentos de medição.
+
 Para criar uma nova migração depois de alterar um model:
 
 ```bash

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/usuario.dart';
+import '../models/cargo_usuario.dart';
 import '../repositories/auth_repository.dart';
 import '../repositories/token_repository.dart';
 import 'api_client.dart';
@@ -46,10 +47,15 @@ class SessaoService extends ChangeNotifier {
     }
   }
 
-  Future<bool> cadastrar(String nome, String email, String senha) async {
+  Future<bool> cadastrar(
+    String nome,
+    String email,
+    String senha, {
+    CargoUsuario cargo = CargoUsuario.visualizador,
+  }) async {
     _iniciarCarregamento();
     try {
-      await repository.cadastrarUsuario(nome, email, senha);
+      await repository.cadastrarUsuario(nome, email, senha, cargo);
       return await entrar(email, senha);
     } on ApiException catch (exception) {
       _erro = exception.message;

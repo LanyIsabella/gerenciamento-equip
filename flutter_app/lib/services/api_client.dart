@@ -40,6 +40,7 @@ class ApiClient {
     required String nome,
     required String email,
     required String senha,
+    required String cargo,
   }) async {
     final response = await client.post(
       Uri.parse('$baseUrl/usuarios/'),
@@ -48,7 +49,7 @@ class ApiClient {
         'nome': nome,
         'email': email,
         'senha': senha,
-        'cargo': 'visualizador',
+        'cargo': cargo,
       }),
     );
     _json(response);
