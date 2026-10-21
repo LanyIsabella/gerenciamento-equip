@@ -1,14 +1,23 @@
 from datetime import date
 
+from app.observer.avisos import (
+    ManutencaoEncerrada,
+    PublicadorManutencaoEncerrada,
+)
+
 from .service import AtualizarManutencaoService
 
 
 class EncerrarManutencaoFacade:
     """Coordena o encerramento da manutenção e a liberação do equipamento."""
 
-    def __init__(self, manutencao_service: AtualizarManutencaoService, equipamento_service):
+    def __init__(
+        self,
+        manutencao_service: AtualizarManutencaoService,
+        publicador: PublicadorManutencaoEncerrada,
+    ):
         self.manutencao_service = manutencao_service
-        self.equipamento_service = equipamento_service
+        self.publicador = publicador
 
     def executar(self, id_manutencao: int, data_conclusao: date, usuario_atual):
         manutencao = self.manutencao_service.atualizar(
@@ -20,9 +29,13 @@ class EncerrarManutencaoFacade:
             usuario_atual,
         )
 
-        self.equipamento_service.atualizar_status_por_manutencao(
-            manutencao.id_equipamento,
-            "Ativo",
+        self.publicador.publicar(
+            ManutencaoEncerrada(
+                id_manutencao=manutencao.id,
+                id_equipamento=manutencao.id_equipamento,
+                data_conclusao=data_conclusao,
+                id_responsavel=usuario_atual.id,
+            )
         )
 
         return manutencao

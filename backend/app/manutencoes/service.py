@@ -4,6 +4,7 @@ from .erros import (EquipamentoManutencaoNaoEncontrado,
                      ResponsavelManutencaoNaoEncontrado)
 from .policies import (FabricaPoliticaTipoManutencao, PoliticaManutencao,
                         carregar_regras)
+from .regras import validar_regras_manutencao
 
 
 class _BaseManutencaoService:
@@ -36,46 +37,11 @@ class _BaseManutencaoService:
                 "O tipo da manutenção deve ser informado"
             )
 
-        if "custo" in dados and dados["custo"] is None:
-            raise RegraManutencaoInvalida(
-                "O custo da manutenção não pode ser nulo"
-            )
-
         regras = FabricaPoliticaTipoManutencao.criar(
             self.regras,
             dados["tipo"],
         )
-
-        custo = dados.get("custo")
-        if custo is not None and custo < regras.get("custo_minimo", 0):
-            raise RegraManutencaoInvalida(
-                "O custo da manutenção não pode ser inferior ao mínimo permitido"
-            )
-
-        data_abertura = dados.get("data_abertura")
-        data_conclusao = dados.get("data_conclusao")
-        if (
-            data_abertura is not None
-            and data_conclusao is not None
-            and data_conclusao < data_abertura
-        ):
-            raise RegraManutencaoInvalida(
-                "A data de conclusão não pode ser anterior à data de abertura"
-            )
-
-        if (
-            dados.get("status") == "Concluída"
-            and regras.get("exige_data_conclusao_ao_concluir", False)
-            and not data_conclusao
-        ):
-            raise RegraManutencaoInvalida(
-                "Manutenção concluída exige data de conclusão"
-            )
-
-        if regras.get("exige_descricao", False) and not dados.get("descricao"):
-            raise RegraManutencaoInvalida(
-                "Manutenção corretiva exige uma descrição do problema"
-            )
+        validar_regras_manutencao(dados, regras)
 
 
 class CadastroManutencaoService(_BaseManutencaoService):

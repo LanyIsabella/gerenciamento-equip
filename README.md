@@ -189,6 +189,15 @@ prototipo/     protótipo React original
 padroes/       catálogo dos padrões aplicados
 ```
 
+## Documentação de Programação III
+
+- [Ficha do projeto](docs/projeto.md): recorte, usuários, entidades, telas e fluxos do EquipControl.
+- [Regras de negócio](docs/regras-de-negocio.md): regras identificadas e seu estado de implementação.
+- [Catálogo de padrões](padroes/CATALOGO.md): padrões aplicados, parciais e não aplicáveis ao domínio.
+- [Diário de decisões](docs/DIARIO.md): decisões, custos, alternativas e evidências das refatorações.
+- [Matriz de evidências](docs/entrega-evidencias.md): comandos, fluxos, testes e provas para as entregas.
+- [Adequação por encontro](programacao-iii-adequacao-gerenciador-equipamentos.md): checklist das entregas da disciplina.
+
 ## Encontro de refatoração
 
 Usei estas seis perguntas na varredura do próprio código:

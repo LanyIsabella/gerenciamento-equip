@@ -124,3 +124,18 @@ manutenções; essa integração ainda precisa ser definida ou implementada.
    exclusão;
 8. substituir o armazenamento em listas na memória por um banco de dados
    persistente.
+
+## Estado das regras para a entrega de Programação III
+
+| Grupo | Evidência principal | Estado |
+|---|---|---|
+| Cadastro e consulta de equipamentos | `equipamentos/schemas.py`, `equipamentos/service.py`, `equipamentos/repository.py` | Implementado |
+| Busca e filtros de equipamentos | `equipamentos/controller.py` e `equipamentos/repository.py` | Implementado |
+| Cadastro e consulta de manutenções | `manutencoes/schemas.py`, `manutencoes/service.py`, `manutencoes/repository.py` | Implementado |
+| Tipos e regras de manutenção | `manutencoes/policies.py` e `manutencoes/regras.json` | Implementado parcialmente |
+| Permissões por cargo | `equipamentos/policies.py`, `manutencoes/policies.py`, `tests/test_policies.py` | Implementado e testado |
+| Encerramento de manutenção | `manutencoes/facade.py` | Implementado; falta teste específico do fluxo completo |
+| Relação equipamento/manutenção/responsável | models, repositories e schemas relacionados | Implementado parcialmente |
+| Regras listadas como decisões futuras | seção anterior deste documento | Pendente de decisão funcional |
+
+Os identificadores `RN-EQ-*` e `RN-MAN-*` são a convenção do projeto para tornar as regras rastreáveis. Eles cumprem a mesma função dos códigos curtos solicitados pela disciplina e devem ser usados nos commits, testes e diário quando uma regra for alterada.

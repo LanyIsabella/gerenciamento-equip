@@ -42,3 +42,22 @@ def test_cadastro_e_atualizacao_de_equipamento_preservam_o_fluxo():
     assert criado["id_responsavel"] == usuario.id
     assert criado["patrimonio"] == "PAT-1234"
     assert atualizado == {"nome": "Notebook novo"}
+
+
+class PoliticaEquipamentoDeTeste:
+    def __init__(self):
+        self.usuarios_validados = []
+
+    def validar(self, usuario):
+        self.usuarios_validados.append(usuario)
+
+
+def test_nova_politica_pode_ser_adicionada_sem_alterar_o_service():
+    repositorio = RepositorioEquipamentoFake()
+    politica = PoliticaEquipamentoDeTeste()
+    usuario = usuario_administrador()
+    service = CadastroEquipamentoService(repositorio, politica=politica)
+
+    service.cadastrar(usuario, nome="Notebook", patrimonio="pat-9999")
+
+    assert politica.usuarios_validados == [usuario]
