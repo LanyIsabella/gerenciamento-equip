@@ -1,6 +1,11 @@
 from app.database import get_db
 from app.equipamentos.repository import EquipamentoRepository
 from app.equipamentos.service import AtualizarEquipamentoService
+from app.observer.avisos import (
+    LiberarEquipamentoAoEncerrar,
+    PublicadorManutencaoEncerrada,
+    RegistrarEncerramentoNoLog,
+)
 from app.usuarios.repository import UsuarioRepository
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -54,13 +59,18 @@ def obter_service_exclusao(deps=Depends(_dependencias)):
 
 def obter_facade_encerramento(deps=Depends(_dependencias)):
     repositorio, equipamento_repositorio, usuario_repositorio = deps
+    equipamento_service = AtualizarEquipamentoService(equipamento_repositorio)
+    publicador = PublicadorManutencaoEncerrada(
+        [
+            LiberarEquipamentoAoEncerrar(equipamento_service),
+            RegistrarEncerramentoNoLog(),
+        ]
+    )
     return EncerrarManutencaoFacade(
         manutencao_service=AtualizarManutencaoService(
             repositorio,
             equipamento_repositorio,
             usuario_repositorio,
         ),
-        equipamento_service=AtualizarEquipamentoService(
-            equipamento_repositorio,
-        ),
+        publicador=publicador,
     )

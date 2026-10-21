@@ -1,15 +1,58 @@
-## Catálogo de padrões — Gerenciador de Equipamentos
+# Padrões utilizados — Gerenciador de Equipamentos
 
-### Padrões visados ou já utilizados para o projeto
+Este documento registra os padrões identificados ou aplicados no domínio de usuários, categorias, equipamentos e manutenções.
 
-| Padrão | Família | Que problema resolve? | O que aconteceria sem ele? | Já usei? Onde? | Quando vale e quando é burocracia? |
-| --- | --- | --- | --- | --- | --- |
-| Strategy | Comportamental | Separa regras que podem mudar, permitindo trocar uma regra sem mexer no restante do código. | As regras ficariam em vários `if`s e seria mais difícil adicionar novos perfis, status ou formas de validação. | Sim. Está sendo utilizado na validação de tipo de usuário para que o sistema permita cadastro ou alteração de equipamentos e manutenções | Vale se o sistema tiver várias regras diferentes para a mesma operação. Hoje seria burocracia, porque as regras são poucas e diretas. |
-| State | Comportamental | Coloca em objetos diferentes o comportamento de cada estado de uma entidade. | O código teria muitos `if`s para decidir o que uma manutenção pode fazer em cada status. | Não. | Vale se manutenção tiver ações e regras diferentes para estados como pendente, em andamento e concluída. Hoje seria excesso, pois o status não controla comportamentos complexos. |
-| Factory Method | Criacional | Centraliza a criação de objetos e permite escolher qual tipo concreto criar. | Os serviços e controllers ficariam ligados diretamente às classes concretas. | Sim. Está sendo utilizado na validação de campos que variam por tipo de manutenção. Esses campos devem ser preenchidos de acordo com cada tipo de manutenção selecionado. | Vale se houver vários tipos de repositório, serviço ou manutenção escolhidos por configuração. Hoje há poucas implementações, então a criação direta é mais simples. |
-| Facade | Estrutural | Esconde várias operações atrás de uma interface simples. | Cada controller teria que conhecer detalhes de validação, banco e persistência. | Sim. `backend/app/manutencoes/facade.py` possui o `EncerrarManutencaoFacade`, utilizado pelo endpoint `PATCH /manutencoes/{id_manutencao}/encerrar`. Ele coordena a atualização da manutenção para concluída e a atualização do equipamento relacionado para ativo, utilizando os services existentes. | Vale para casos de uso que envolvem mais de um service ou entidade. Neste projeto, foi aplicado de forma simples no encerramento de manutenção; não é necessário criar Facades para operações que usam apenas um service. |
-| Observer | Comportamental | Permite avisar vários interessados quando algo muda. | Cada parte do sistema teria que consultar o banco ou ser chamada manualmente para saber das mudanças. | Não. O back-end não possui eventos, listeners, filas ou mecanismo de inscrição. Os endpoints apenas executam a operação e retornam a resposta. | Vale para notificações, auditoria, atualização de cache ou integração com outros sistemas. Hoje seria burocracia, pois a API não precisa reagir a eventos em segundo plano. |
-| Injeção de Dependência | - | Entrega as dependências prontas para uma classe, em vez de ela mesma criá-las. | Os services criariam seus próprios repositories e ficariam mais difíceis de testar e substituir. | Sim. Em `backend/app/equipamentos/dependencias.py`, `Depends(obter_repositorio)` injeta o `EquipamentoRepository` nos services. Em `backend/app/manutencoes/dependencias.py`, `_dependencias` injeta os repositories de manutenção, equipamento e usuário. | Vale muito aqui porque separa regra de negócio e acesso ao banco e facilita testes. Criar mais uma ferramenta de injeção seria burocracia, pois o `Depends` do FastAPI já atende ao projeto. |
-| Corrente de Responsabilidade | - | Passa uma solicitação por uma sequência de handlers até que um deles a trate. | Um único controller teria que concentrar todas as validações e decisões, ficando grande e acoplado. | Não. As validações dos services são chamadas diretamente, como `_validar_relacionamentos` em `backend/app/manutencoes/service.py`; não há uma cadeia de handlers com encaminhamento entre eles. | Vale para pipelines de validação, autorização ou processamento em várias etapas. Hoje seria excesso, pois os fluxos têm poucas validações e são lineares. |
-| Composite | - | Trata objetos individuais e grupos de objetos com a mesma interface. | O código teria que distinguir manualmente entre um item e um grupo ao percorrer estruturas em árvore. | Não. Os models de `backend/app` têm relacionamentos entre entidades, mas não formam uma estrutura de árvore com operações uniformes para item e grupo. | Vale para hierarquias de equipamentos, categorias com subcategorias ou menus compostos. Hoje não há esse tipo de estrutura, então seria burocracia. |
-| Unit of Work | - | Agrupa várias alterações em uma transação e confirma tudo de uma vez, ou desfaz tudo em caso de erro. | Uma operação com várias alterações poderia salvar apenas parte dos dados se uma etapa falhasse. | Não de forma completa. `backend/app/database.py` cria a `Session` e `get_db` controla seu ciclo de vida, mas os métodos de `backend/app/equipamentos/repository.py` e `backend/app/manutencoes/repository.py` fazem `commit()` individualmente. | Vale quando um caso de uso altera várias entidades e precisa de uma única transação. Hoje seria útil apenas se esses fluxos surgirem; para operações simples, o commit no repository é suficiente. |
+## Padrões aplicados
+
+| Padrão | Família | Problema resolvido | Onde está aplicado | Evidência |
+|---|---|---|---|---|
+| Strategy | Comportamental | Permite trocar uma política sem editar o fluxo que a utiliza. | Políticas de autorização de equipamentos e manutenções. | `backend/app/equipamentos/policies.py`, `backend/app/manutencoes/policies.py` e testes de políticas. |
+| Factory Method | Criacional | Cria a regra concreta de acordo com o tipo de manutenção sem espalhar condicionais. | Regras de manutenção preventiva e corretiva. | `FabricaPoliticaTipoManutencao`, `RegrasManutencaoPreventiva`, `RegrasManutencaoCorretiva` e `backend/tests/test_manutencao_policies.py`. |
+| Facade | Estrutural | Esconde uma sequência de operações que envolve mais de uma entidade. | Encerramento de manutenção e liberação do equipamento relacionado. | `backend/app/manutencoes/facade.py` e `backend/tests/test_facade.py`. |
+| Observer | Comportamental | Notifica interessados quando uma manutenção é encerrada sem acoplar o publicador aos tipos concretos. | Evento `ManutencaoEncerrada`. | `backend/app/observer/avisos.py` e testes da Facade/Observer. |
+| Repository | Arquitetural | Isola consultas e persistência atrás de métodos orientados ao domínio. | Equipamentos, manutenções e usuários. | `backend/app/*/repository.py` e `backend/app/repository.py`. |
+| Service Layer | Arquitetural | Mantém as regras de negócio fora dos Controllers e dos Repositories. | Casos de uso de equipamentos e manutenções. | `backend/app/equipamentos/service.py` e `backend/app/manutencoes/service.py`. |
+| Injeção de Dependência | Idioma/framework | Entrega Services, Repositories e políticas prontas para cada fluxo. | Dependências do FastAPI com `Depends`. | `backend/app/*/dependencias.py`. |
+
+## Como os padrões se relacionam
+
+```text
+Controller
+  └── recebe a requisição e delega
+      └── Service ou Facade
+          ├── aplica regras e políticas
+          ├── publica eventos quando necessário
+          └── chama Repositories
+              └── acessa SQLAlchemy/PostgreSQL
+```
+
+No encerramento de uma manutenção, a sequência é:
+
+1. o Controller chama `EncerrarManutencaoFacade`;
+2. a Facade atualiza a manutenção por meio do Service;
+3. a Facade publica `ManutencaoEncerrada`;
+4. `LiberarEquipamentoAoEncerrar` atualiza o equipamento;
+5. `RegistrarEncerramentoNoLog` registra o evento.
+
+## Padrões avaliados e não aplicados
+
+| Padrão | Motivo da não aplicação atual |
+|---|---|
+| State | Os estados da manutenção ainda não possuem comportamentos complexos o suficiente para justificar classes separadas. |
+| Corrente de Responsabilidade | As validações atuais são lineares e não formam uma cadeia de handlers independentes. |
+| Composite | Equipamentos e categorias não formam uma hierarquia com operações uniformes para itens e grupos. |
+| Unit of Work completo | A sessão do SQLAlchemy existe, mas os Repositories ainda confirmam suas próprias operações. |
+| Adapter | Não há integração externa ou formato incompatível que precise de isolamento. |
+| Decorator | Não há comportamento transversal necessário que justifique envolver os componentes atuais. |
+
+Esses padrões não devem ser adicionados apenas para aumentar a lista. Qualquer aplicação futura deve responder a uma necessidade concreta do gerenciador.
+
+## Critério de comprovação
+
+Um padrão só é considerado aplicado quando há:
+
+- problema concreto do domínio;
+- localização no código;
+- mudança ou comportamento observável;
+- teste, diff ou histórico que comprove a decisão;
+- justificativa do custo e do benefício.
