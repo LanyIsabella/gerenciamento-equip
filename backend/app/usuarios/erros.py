@@ -1,9 +1,6 @@
-from fastapi import HTTPException, status
+from app.erros import ErroDeDominio
 
 
-class EmailUsuarioJaCadastrado(HTTPException):
+class EmailUsuarioJaCadastrado(ErroDeDominio):
     def __init__(self) -> None:
-        super().__init__(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Já existe um usuário com este e-mail",
-        )
+        super().__init__(409, "Já existe um usuário com este e-mail")

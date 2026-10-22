@@ -9,6 +9,7 @@ abstract class EquipamentosRepository {
   });
 
   Future<Equipamento> criar(EquipamentoInput dados);
+  Future<Equipamento> buscarPorId(int id);
   Future<Equipamento> atualizar(int id, EquipamentoInput dados);
   Future<void> excluir(int id);
 }
@@ -55,6 +56,12 @@ class ApiEquipamentosRepository implements EquipamentosRepository {
       _token(),
       dados.toJson(),
     );
+    return Equipamento.fromJson(resposta as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Equipamento> buscarPorId(int id) async {
+    final resposta = await api.getAutenticado('/equipamentos/$id', _token());
     return Equipamento.fromJson(resposta as Map<String, dynamic>);
   }
 

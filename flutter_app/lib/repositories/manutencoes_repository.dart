@@ -9,6 +9,7 @@ abstract class ManutencoesRepository {
   });
 
   Future<Manutencao> criar(ManutencaoInput dados);
+  Future<Manutencao> buscarPorId(int id);
   Future<Manutencao> atualizar(int id, ManutencaoInput dados);
   Future<Manutencao> encerrar(int id, String dataConclusao);
   Future<void> excluir(int id);
@@ -56,6 +57,12 @@ class ApiManutencoesRepository implements ManutencoesRepository {
       _token(),
       dados.toJson(),
     );
+    return Manutencao.fromJson(resposta as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Manutencao> buscarPorId(int id) async {
+    final resposta = await api.getAutenticado('/manutencoes/$id', _token());
     return Manutencao.fromJson(resposta as Map<String, dynamic>);
   }
 

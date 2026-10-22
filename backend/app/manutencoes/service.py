@@ -71,9 +71,11 @@ class ListarManutencoesService(_BaseManutencaoService):
 
 
 class BuscarManutencaoService(_BaseManutencaoService):
-    def buscar_por_id(self, id_manutencao: int):
+    def buscar_por_id(self, id_manutencao: int, usuario_atual=None):
         manutencao = self.repositorio.buscar_por_id(id_manutencao)
-        if manutencao is None:
+        if manutencao is None or (
+            usuario_atual is not None and manutencao.id_responsavel != usuario_atual.id
+        ):
             raise ManutencaoNaoEncontrada()
         return manutencao
 
@@ -81,7 +83,7 @@ class BuscarManutencaoService(_BaseManutencaoService):
 class AtualizarManutencaoService(_BaseManutencaoService):
     def atualizar(self, id_manutencao: int, dados: dict, usuario_atual):
         manutencao = self.repositorio.buscar_por_id(id_manutencao)
-        if manutencao is None:
+        if manutencao is None or manutencao.id_responsavel != usuario_atual.id:
             raise ManutencaoNaoEncontrada()
         relacionamentos = {
             "id_equipamento": dados.get("id_equipamento", manutencao.id_equipamento),
@@ -104,8 +106,10 @@ class AtualizarManutencaoService(_BaseManutencaoService):
 
 
 class ApagarManutencaoService(_BaseManutencaoService):
-    def apagar(self, id_manutencao: int) -> None:
+    def apagar(self, id_manutencao: int, usuario_atual=None) -> None:
         manutencao = self.repositorio.buscar_por_id(id_manutencao)
-        if manutencao is None:
+        if manutencao is None or (
+            usuario_atual is not None and manutencao.id_responsavel != usuario_atual.id
+        ):
             raise ManutencaoNaoEncontrada()
         self.repositorio.apagar(manutencao)

@@ -39,8 +39,12 @@ def criar(
 
 
 @router.get("/{id_equipamento}", response_model=EquipamentoPublico)
-def buscar(id_equipamento: int, service: BuscarEquipamentoService = Depends(obter_service_busca)):
-    return service.buscar_por_id(id_equipamento)
+def buscar(
+    id_equipamento: int,
+    usuario=Depends(obter_usuario_atual),
+    service: BuscarEquipamentoService = Depends(obter_service_busca),
+):
+    return service.buscar_por_id(id_equipamento, usuario)
 
 
 @router.patch("/{id_equipamento}", response_model=EquipamentoPublico)
@@ -58,6 +62,10 @@ def atualizar(
 
 
 @router.delete("/{id_equipamento}", status_code=204)
-def apagar(id_equipamento: int, service: ApagarEquipamentoService = Depends(obter_service_exclusao)):
-    service.apagar(id_equipamento)
+def apagar(
+    id_equipamento: int,
+    usuario=Depends(obter_usuario_atual),
+    service: ApagarEquipamentoService = Depends(obter_service_exclusao),
+):
+    service.apagar(id_equipamento, usuario)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

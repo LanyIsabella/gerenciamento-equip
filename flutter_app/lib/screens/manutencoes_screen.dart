@@ -6,6 +6,7 @@ import '../models/manutencao.dart';
 import '../services/equipamentos_service.dart';
 import '../services/manutencoes_service.dart';
 import '../services/sessao_service.dart';
+import '../routes.dart';
 import '../widgets/app_shell.dart';
 import '../widgets/manutencao_form_dialog.dart';
 import '../widgets/status_badge.dart';
@@ -109,10 +110,10 @@ class _ManutencoesScreenState extends State<ManutencoesScreen> {
           else
             LayoutBuilder(
               builder: (context, constraints) => constraints.maxWidth < 820
-                  ? _Cards(itens, podeGerenciar, _detalhes, _abrirFormulario,
+                  ? _Cards(itens, podeGerenciar, _abrirDetalhe, _abrirFormulario,
                       _excluir, _encerrar)
-                  : _Tabela(itens, podeGerenciar, _abrirFormulario, _excluir,
-                      _encerrar),
+                  : _Tabela(itens, podeGerenciar, _abrirDetalhe, _abrirFormulario,
+                      _excluir, _encerrar),
             ),
         ],
       ),
@@ -222,6 +223,10 @@ class _ManutencoesScreenState extends State<ManutencoesScreen> {
     );
   }
 
+  void _abrirDetalhe(Manutencao manutencao) {
+    Navigator.pushNamed(context, AppRoutes.manutencaoDetalhe, arguments: manutencao.id);
+  }
+
   void _avisar(String mensagem) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(mensagem)));
@@ -315,12 +320,13 @@ class _Campo extends StatelessWidget {
 class _Tabela extends StatefulWidget {
   final List<Manutencao> itens;
   final bool podeGerenciar;
+  final ValueChanged<Manutencao> detalhes;
   final ValueChanged<Manutencao> editar;
   final ValueChanged<Manutencao> excluir;
   final ValueChanged<Manutencao> encerrar;
 
-  const _Tabela(
-      this.itens, this.podeGerenciar, this.editar, this.excluir, this.encerrar);
+  const _Tabela(this.itens, this.podeGerenciar, this.detalhes, this.editar,
+      this.excluir, this.encerrar);
 
   @override
   State<_Tabela> createState() => _TabelaState();
@@ -370,9 +376,7 @@ class _TabelaState extends State<_Tabela> {
               podeGerenciar: widget.podeGerenciar,
               expandida: expandida == item.id,
               colunas: _colunas,
-              onDetalhes: () => setState(
-                () => expandida = expandida == item.id ? null : item.id,
-              ),
+              onDetalhes: () => widget.detalhes(item),
               onEditar: () => widget.editar(item),
               onExcluir: () => widget.excluir(item),
               onEncerrar: () => widget.encerrar(item),

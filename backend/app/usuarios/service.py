@@ -1,35 +1,16 @@
-import hashlib
-import hmac
-import secrets
+import bcrypt
 
 from .erros import EmailUsuarioJaCadastrado
 from .repository import UsuarioRepository
 
 
 def gerar_hash_senha(senha: str) -> str:
-    salt = secrets.token_bytes(16)
-    iteracoes = 600_000
-    digest = hashlib.pbkdf2_hmac(
-        "sha256",
-        senha.encode("utf-8"),
-        salt,
-        iteracoes,
-    )
-    return f"pbkdf2_sha256${iteracoes}${salt.hex()}${digest.hex()}"
+    return bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verificar_senha(senha: str, senha_hash: str) -> bool:
     try:
-        algoritmo, iteracoes, salt_hex, digest_hex = senha_hash.split("$")
-        if algoritmo != "pbkdf2_sha256":
-            return False
-        digest = hashlib.pbkdf2_hmac(
-            "sha256",
-            senha.encode("utf-8"),
-            bytes.fromhex(salt_hex),
-            int(iteracoes),
-        )
-        return hmac.compare_digest(digest.hex(), digest_hex)
+        return bcrypt.checkpw(senha.encode("utf-8"), senha_hash.encode("utf-8"))
     except (ValueError, TypeError):
         return False
 
