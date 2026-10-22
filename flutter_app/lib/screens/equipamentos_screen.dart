@@ -5,6 +5,7 @@ import '../data/date_format.dart';
 import '../models/equipamento.dart';
 import '../services/equipamentos_service.dart';
 import '../services/sessao_service.dart';
+import '../routes.dart';
 import '../widgets/app_shell.dart';
 import '../widgets/equipamento_form_dialog.dart';
 import '../widgets/status_badge.dart';
@@ -110,9 +111,9 @@ class _EquipamentosScreenState extends State<EquipamentosScreen> {
           else
             LayoutBuilder(
               builder: (context, constraints) => constraints.maxWidth < 760
-                  ? _Cards(itens, podeGerenciar, _detalhes, _abrirFormulario,
+                  ? _Cards(itens, podeGerenciar, _abrirDetalhe, _abrirFormulario,
                       _excluir)
-                  : _Tabela(itens, podeGerenciar, _abrirFormulario, _excluir),
+                  : _Tabela(itens, podeGerenciar, _abrirDetalhe, _abrirFormulario, _excluir),
             ),
         ],
       ),
@@ -188,6 +189,10 @@ class _EquipamentosScreenState extends State<EquipamentosScreen> {
         ],
       ),
     );
+  }
+
+  void _abrirDetalhe(Equipamento equipamento) {
+    Navigator.pushNamed(context, AppRoutes.equipamentoDetalhe, arguments: equipamento.id);
   }
 
   void _avisar(String mensagem) {
@@ -274,7 +279,7 @@ class _Tabela extends StatefulWidget {
   final ValueChanged<Equipamento> editar;
   final ValueChanged<Equipamento> excluir;
 
-  const _Tabela(this.itens, this.podeGerenciar, this.editar, this.excluir);
+  const _Tabela(this.itens, this.podeGerenciar, this.detalhes, this.editar, this.excluir);
 
   @override
   State<_Tabela> createState() => _TabelaState();
@@ -324,9 +329,7 @@ class _TabelaState extends State<_Tabela> {
               podeGerenciar: widget.podeGerenciar,
               expandida: expandida == item.id,
               colunas: _colunas,
-              onDetalhes: () => setState(
-                () => expandida = expandida == item.id ? null : item.id,
-              ),
+              onDetalhes: () => widget.detalhes(item),
               onEditar: () => widget.editar(item),
               onExcluir: () => widget.excluir(item),
             ),
@@ -606,3 +609,4 @@ class _Erro extends StatelessWidget {
     );
   }
 }
+  final ValueChanged<Equipamento> detalhes;

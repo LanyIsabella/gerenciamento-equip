@@ -55,8 +55,12 @@ def criar(
 
 
 @router.get("/{id_manutencao}", response_model=ManutencaoPublico)
-def buscar(id_manutencao: int, service: BuscarManutencaoService = Depends(obter_service_busca)):
-    return service.buscar_por_id(id_manutencao)
+def buscar(
+    id_manutencao: int,
+    usuario=Depends(obter_usuario_atual),
+    service: BuscarManutencaoService = Depends(obter_service_busca),
+):
+    return service.buscar_por_id(id_manutencao, usuario)
 
 
 @router.patch("/{id_manutencao}", response_model=ManutencaoPublico)
@@ -84,6 +88,10 @@ def encerrar(
 
 
 @router.delete("/{id_manutencao}", status_code=204)
-def apagar(id_manutencao: int, service: ApagarManutencaoService = Depends(obter_service_exclusao)):
-    service.apagar(id_manutencao)
+def apagar(
+    id_manutencao: int,
+    usuario=Depends(obter_usuario_atual),
+    service: ApagarManutencaoService = Depends(obter_service_exclusao),
+):
+    service.apagar(id_manutencao, usuario)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

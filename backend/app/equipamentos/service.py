@@ -44,9 +44,11 @@ class BuscarEquipamentoService:
     def __init__(self, repositorio):
         self.repositorio = repositorio
 
-    def buscar_por_id(self, id_equipamento: int):
+    def buscar_por_id(self, id_equipamento: int, usuario_atual=None):
         equipamento = self.repositorio.buscar_por_id(id_equipamento)
-        if equipamento is None:
+        if equipamento is None or (
+            usuario_atual is not None and equipamento.id_responsavel != usuario_atual.id
+        ):
             raise EquipamentoNaoEncontrado()
         return equipamento
 
@@ -68,7 +70,9 @@ class AtualizarEquipamentoService:
 
     def atualizar(self, id_equipamento: int, dados: dict, usuario_atual):
         equipamento = self.repositorio.buscar_por_id(id_equipamento)
-        if equipamento is None:
+        if equipamento is None or (
+            getattr(equipamento, "id_responsavel", usuario_atual.id) != usuario_atual.id
+        ):
             raise EquipamentoNaoEncontrado()
         dados = dict(dados)
         self.politica.validar(usuario_atual)
@@ -91,8 +95,10 @@ class ApagarEquipamentoService:
     def __init__(self, repositorio):
         self.repositorio = repositorio
 
-    def apagar(self, id_equipamento: int) -> None:
+    def apagar(self, id_equipamento: int, usuario_atual=None) -> None:
         equipamento = self.repositorio.buscar_por_id(id_equipamento)
-        if equipamento is None:
+        if equipamento is None or (
+            usuario_atual is not None and equipamento.id_responsavel != usuario_atual.id
+        ):
             raise EquipamentoNaoEncontrado()
         self.repositorio.apagar(equipamento)

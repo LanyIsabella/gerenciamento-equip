@@ -1,40 +1,26 @@
-from fastapi import HTTPException, status
+from app.erros import ErroDeDominio
 
 
-class ManutencaoNaoEncontrada(HTTPException):
-    """Erro retornado quando a manutenção informada não existe."""
-
+class ManutencaoNaoEncontrada(ErroDeDominio):
     def __init__(self) -> None:
-        super().__init__(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Manutenção não encontrada",
-        )
+        super().__init__(404, "Manutenção não encontrada")
 
 
-class EquipamentoManutencaoNaoEncontrado(HTTPException):
+class EquipamentoManutencaoNaoEncontrado(ErroDeDominio):
     def __init__(self) -> None:
-        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail="Equipamento não encontrado")
+        super().__init__(404, "Equipamento não encontrado")
 
 
-class ResponsavelManutencaoNaoEncontrado(HTTPException):
+class ResponsavelManutencaoNaoEncontrado(ErroDeDominio):
     def __init__(self) -> None:
-        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário responsável não encontrado")
+        super().__init__(404, "Usuário responsável não encontrado")
 
 
-class ResponsavelManutencaoInvalido(HTTPException):
+class ResponsavelManutencaoInvalido(ErroDeDominio):
     def __init__(self) -> None:
-        super().__init__(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=(
-                "O responsável pela manutenção deve ter o cargo "
-                "administrador ou técnico"
-            ),
-        )
+        super().__init__(422, "O responsável pela manutenção deve ter o cargo administrador ou técnico")
 
 
-class RegraManutencaoInvalida(HTTPException):
+class RegraManutencaoInvalida(ErroDeDominio):
     def __init__(self, detalhe: str) -> None:
-        super().__init__(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=detalhe,
-        )
+        super().__init__(422, detalhe)

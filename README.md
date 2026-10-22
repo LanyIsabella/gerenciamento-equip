@@ -171,6 +171,10 @@ flutter run -d <id-do-dispositivo>
 
 O aplicativo usa `http://localhost:8000` como endereço da API. Em um emulador Android, troque o endereço para `http://10.0.2.2:8000` em `flutter_app/lib/main.dart`.
 
+As telas de listagem abrem o detalhe por rota nomeada, passando o identificador
+do equipamento ou da manutenção em `arguments`. O detalhe faz uma nova busca
+autenticada pelo id e trata carregamento, erro e tentativa novamente.
+
 ## 6. Testar o aplicativo
 
 ```bash
@@ -189,14 +193,15 @@ prototipo/     protótipo React original
 padroes/       catálogo dos padrões aplicados
 ```
 
-## Documentação de Programação III
+## Documentação de Programação Web III
 
 - [Ficha do projeto](docs/projeto.md): recorte, usuários, entidades, telas e fluxos do EquipControl.
 - [Regras de negócio](docs/regras-de-negocio.md): regras identificadas e seu estado de implementação.
 - [Catálogo de padrões](padroes/CATALOGO.md): padrões aplicados, parciais e não aplicáveis ao domínio.
 - [Diário de decisões](docs/DIARIO.md): decisões, custos, alternativas e evidências das refatorações.
-- [Matriz de evidências](docs/entrega-evidencias.md): comandos, fluxos, testes e provas para as entregas.
-- [Adequação por encontro](programacao-iii-adequacao-gerenciador-equipamentos.md): checklist das entregas da disciplina.
+- [Consolidado dos requisitos](programacao-web-iii-consolidado.md): requisitos e estrutura necessária de cada encontro.
+- [Checklist de adequação](programacao-web-iii-adequacao-gerenciador-equipamentos.md): atendimento atual, lacunas e evidências por encontro.
+
 
 ## Encontro de refatoração
 

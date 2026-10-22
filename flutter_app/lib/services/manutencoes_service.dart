@@ -46,6 +46,18 @@ class ManutencoesService extends ChangeNotifier {
     });
   }
 
+  Future<Manutencao?> buscarPorId(int id) async {
+    try {
+      final item = await repository.buscarPorId(id);
+      itens = [...itens.where((value) => value.id != id), item];
+      notifyListeners();
+      return item;
+    } on ApiException catch (exception) {
+      await _tratarErro(exception);
+      return null;
+    }
+  }
+
   Future<bool> atualizar(int id, ManutencaoInput dados) async {
     return _alterar(() async {
       final atualizada = await repository.atualizar(id, dados);

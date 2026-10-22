@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 # Importa os modelos para registrar todos os relacionamentos no SQLAlchemy.
 from app.categoria.models import Categoria  # noqa: F401
@@ -9,6 +10,7 @@ from app.usuarios.models import Usuario  # noqa: F401
 from .equipamentos import controller as equipamentos_controller
 from .manutencoes import controller as manutencoes_controller
 from .usuarios import controller as usuarios_controller
+from .erros import ErroDeDominio
 
 
 app = FastAPI(
@@ -16,6 +18,16 @@ app = FastAPI(
     version="1.0.0",
     description="API para gerenciar equipamentos e suas manutenções.",
 )
+
+
+@app.exception_handler(ErroDeDominio)
+async def tratar_erro_de_dominio(_: Request, erro: ErroDeDominio):
+    return JSONResponse(status_code=erro.status_code, content={"detail": erro.detail})
+
+
+@app.get("/", tags=["Sistema"])
+def raiz():
+    return {"sistema": "EquipControl", "status": "online"}
 
 app.add_middleware(
     CORSMiddleware,

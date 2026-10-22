@@ -1,29 +1,16 @@
-from fastapi import HTTPException, status
+from app.erros import ErroDeDominio
 
 
-class EquipamentoNaoEncontrado(HTTPException):
-    """Erro retornado quando o equipamento informado não existe."""
-
+class EquipamentoNaoEncontrado(ErroDeDominio):
     def __init__(self) -> None:
-        super().__init__(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Equipamento não encontrado",
-        )
+        super().__init__(404, "Equipamento não encontrado")
 
-class PatrimonioJaCadastrado(HTTPException):
+
+class PatrimonioJaCadastrado(ErroDeDominio):
     def __init__(self) -> None:
-        super().__init__(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Já existe um equipamento com este patrimônio",
-        )
+        super().__init__(409, "Já existe um equipamento com este patrimônio")
 
 
-class ResponsavelEquipamentoInvalido(HTTPException):
+class ResponsavelEquipamentoInvalido(ErroDeDominio):
     def __init__(self) -> None:
-        super().__init__(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=(
-                "O responsável pelo equipamento deve ter o cargo "
-                "administrador ou gerente"
-            ),
-        )
+        super().__init__(422, "O responsável pelo equipamento deve ter o cargo administrador ou gerente")
