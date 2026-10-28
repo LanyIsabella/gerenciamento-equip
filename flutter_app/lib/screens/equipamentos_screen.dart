@@ -276,6 +276,7 @@ class _Filtros extends StatelessWidget {
 class _Tabela extends StatefulWidget {
   final List<Equipamento> itens;
   final bool podeGerenciar;
+  final ValueChanged<Equipamento> detalhes;
   final ValueChanged<Equipamento> editar;
   final ValueChanged<Equipamento> excluir;
 
@@ -609,4 +610,3 @@ class _Erro extends StatelessWidget {
     );
   }
 }
-  final ValueChanged<Equipamento> detalhes;
