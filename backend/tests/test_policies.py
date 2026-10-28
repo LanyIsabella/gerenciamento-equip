@@ -1,7 +1,6 @@
 from types import SimpleNamespace
 
 import pytest
-
 from app.equipamentos.erros import ResponsavelEquipamentoInvalido
 from app.equipamentos.policies import PoliticaCriacaoEquipamento
 from app.manutencoes.erros import ResponsavelManutencaoInvalido

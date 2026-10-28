@@ -1,17 +1,16 @@
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-
 # Importa os modelos para registrar todos os relacionamentos no SQLAlchemy.
 from app.categoria.models import Categoria  # noqa: F401
 from app.equipamentos.models import Equipamento  # noqa: F401
 from app.manutencoes.models import Manutencao  # noqa: F401
 from app.usuarios.models import Usuario  # noqa: F401
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
 from .equipamentos import controller as equipamentos_controller
+from .erros import ErroDeDominio
 from .manutencoes import controller as manutencoes_controller
 from .usuarios import controller as usuarios_controller
-from .erros import ErroDeDominio
-
 
 app = FastAPI(
     title="EquipControl",

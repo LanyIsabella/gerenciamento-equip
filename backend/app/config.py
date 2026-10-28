@@ -1,6 +1,7 @@
 # arquivo para leitura de configurações do sistema, como variáveis de ambiente, banco de dados, etc
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class Settings(BaseSettings):
     database_url: str
     auth_secret: str = "dev-secret-change-me"

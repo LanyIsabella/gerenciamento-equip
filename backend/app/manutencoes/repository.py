@@ -1,7 +1,7 @@
+from app.repository import RepositorioBase
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
-from app.repository import RepositorioBase
 from .models import Manutencao
 
 

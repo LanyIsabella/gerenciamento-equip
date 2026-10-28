@@ -1,11 +1,15 @@
+from app.database import get_db
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.database import get_db
 from .repository import EquipamentoRepository
-from .service import (ApagarEquipamentoService, AtualizarEquipamentoService,
-                      BuscarEquipamentoService, CadastroEquipamentoService,
-                      ListarEquipamentosService)
+from .service import (
+    ApagarEquipamentoService,
+    AtualizarEquipamentoService,
+    BuscarEquipamentoService,
+    CadastroEquipamentoService,
+    ListarEquipamentosService,
+)
 
 
 def obter_repositorio(session: Session = Depends(get_db)) -> EquipamentoRepository:

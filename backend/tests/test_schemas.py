@@ -1,11 +1,10 @@
 from datetime import date
 
 import pytest
-from pydantic import ValidationError
-
-from app.equipamentos.schemas import EquipamentoCriar, EquipamentoAtualizar
+from app.equipamentos.schemas import EquipamentoAtualizar, EquipamentoCriar
 from app.manutencoes.enums import TipoManutencao
-from app.manutencoes.schemas import ManutencaoCriar, ManutencaoAtualizar
+from app.manutencoes.schemas import ManutencaoAtualizar, ManutencaoCriar
+from pydantic import ValidationError
 
 
 def test_equipamento_normaliza_patrimonio_no_cadastro_e_na_atualizacao():

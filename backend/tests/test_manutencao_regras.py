@@ -1,10 +1,8 @@
 from datetime import date
 
 import pytest
-
 from app.manutencoes.erros import RegraManutencaoInvalida
 from app.manutencoes.regras import validar_regras_manutencao
-
 
 REGRAS_PREVENTIVA = {
     "custo_minimo": 100,
