@@ -1,8 +1,8 @@
 from datetime import date
 
 from app.equipamentos.schemas import EquipamentoResumo
-from app.validacao import validar_tamanho_maximo
 from app.usuarios.schemas import UsuarioResumo
+from app.validacao import validar_tamanho_maximo
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from .enums import TipoManutencao

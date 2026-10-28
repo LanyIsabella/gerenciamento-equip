@@ -1,14 +1,21 @@
+from app.auth import obter_usuario_atual
 from fastapi import APIRouter, Depends, Query, Response, status
 
-from app.auth import obter_usuario_atual
-
-from .dependencias import (obter_service, obter_service_atualizacao,
-                           obter_service_busca, obter_service_exclusao,
-                           obter_service_listagem)
+from .dependencias import (
+    obter_service,
+    obter_service_atualizacao,
+    obter_service_busca,
+    obter_service_exclusao,
+    obter_service_listagem,
+)
 from .schemas import EquipamentoAtualizar, EquipamentoCriar, EquipamentoPublico
-from .service import (ApagarEquipamentoService, AtualizarEquipamentoService,
-                      BuscarEquipamentoService, CadastroEquipamentoService,
-                      ListarEquipamentosService)
+from .service import (
+    ApagarEquipamentoService,
+    AtualizarEquipamentoService,
+    BuscarEquipamentoService,
+    CadastroEquipamentoService,
+    ListarEquipamentosService,
+)
 
 router = APIRouter(prefix="/equipamentos", tags=["Equipamentos"])
 

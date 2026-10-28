@@ -1,5 +1,5 @@
-from sqlalchemy import select
 from app.repository import RepositorioBase
+from sqlalchemy import select
 
 from .enums import CargoUsuario
 from .models import Usuario

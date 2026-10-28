@@ -1,9 +1,10 @@
-from .erros import (EquipamentoManutencaoNaoEncontrado,
-                     ManutencaoNaoEncontrada,
-                     RegraManutencaoInvalida,
-                     ResponsavelManutencaoNaoEncontrado)
-from .policies import (FabricaPoliticaTipoManutencao, PoliticaManutencao,
-                        carregar_regras)
+from .erros import (
+    EquipamentoManutencaoNaoEncontrado,
+    ManutencaoNaoEncontrada,
+    RegraManutencaoInvalida,
+    ResponsavelManutencaoNaoEncontrado,
+)
+from .policies import FabricaPoliticaTipoManutencao, PoliticaManutencao, carregar_regras
 from .regras import validar_regras_manutencao
 
 

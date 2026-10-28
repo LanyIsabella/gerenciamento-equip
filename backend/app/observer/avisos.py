@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Protocol
 
-
 logger = logging.getLogger(__name__)
 
 

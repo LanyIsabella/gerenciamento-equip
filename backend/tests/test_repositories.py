@@ -1,5 +1,4 @@
 import pytest
-
 from app.categoria.models import Categoria
 from app.equipamentos.models import Equipamento
 from app.manutencoes.models import Manutencao

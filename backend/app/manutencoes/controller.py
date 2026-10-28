@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Response, status
-
 from app.auth import obter_usuario_atual
+from fastapi import APIRouter, Depends, Query, Response, status
 
 from .dependencias import (
     obter_facade_encerramento,

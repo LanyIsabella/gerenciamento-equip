@@ -1,11 +1,15 @@
-from fastapi import APIRouter, Depends, Query, status
-
 from app.auth import criar_token, obter_usuario_atual
+from fastapi import APIRouter, Depends, Query, status
 
 from .dependencias import obter_service
 from .enums import CargoUsuario
-from .schemas import (LoginRequest, TokenPublico, UsuarioCriar, UsuarioPublico,
-                      UsuarioResumo)
+from .schemas import (
+    LoginRequest,
+    TokenPublico,
+    UsuarioCriar,
+    UsuarioPublico,
+    UsuarioResumo,
+)
 from .service import UsuarioService
 
 router = APIRouter(prefix="/usuarios", tags=["Usuários"])
