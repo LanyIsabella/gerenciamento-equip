@@ -1,3 +1,4 @@
+import '../adapters/equipamento_api_adapter.dart';
 import '../models/equipamento.dart';
 import '../services/api_client.dart';
 
@@ -17,8 +18,13 @@ abstract class EquipamentosRepository {
 class ApiEquipamentosRepository implements EquipamentosRepository {
   final ApiClient api;
   final String? Function() tokenProvider;
+  final EquipamentoApiAdapter adapter;
 
-  ApiEquipamentosRepository(this.api, this.tokenProvider);
+  ApiEquipamentosRepository(
+    this.api,
+    this.tokenProvider, {
+    EquipamentoApiAdapter? adapter,
+  }) : adapter = adapter ?? const EquipamentoApiAdapter();
 
   String _token() {
     final token = tokenProvider();
@@ -34,19 +40,17 @@ class ApiEquipamentosRepository implements EquipamentosRepository {
     int? idCategoria,
     String? status,
   }) async {
-    final query = <String, String>{
-      if (busca != null && busca.trim().isNotEmpty) 'busca': busca.trim(),
-      if (idCategoria != null) 'id_categoria': '$idCategoria',
-      if (status != null && status.isNotEmpty) 'status': status,
-    };
+    final query = adapter.toQuery(
+      busca: busca,
+      idCategoria: idCategoria,
+      status: status,
+    );
     final resposta = await api.getAutenticado(
       '/equipamentos/',
       _token(),
       queryParameters: query,
     );
-    return (resposta as List)
-        .map((item) => Equipamento.fromJson(item as Map<String, dynamic>))
-        .toList();
+    return adapter.listFromApi(resposta);
   }
 
   @override
@@ -54,15 +58,15 @@ class ApiEquipamentosRepository implements EquipamentosRepository {
     final resposta = await api.postAutenticado(
       '/equipamentos/',
       _token(),
-      dados.toJson(),
+      adapter.toApi(dados),
     );
-    return Equipamento.fromJson(resposta as Map<String, dynamic>);
+    return adapter.fromApi(resposta as Map<String, dynamic>);
   }
 
   @override
   Future<Equipamento> buscarPorId(int id) async {
     final resposta = await api.getAutenticado('/equipamentos/$id', _token());
-    return Equipamento.fromJson(resposta as Map<String, dynamic>);
+    return adapter.fromApi(resposta as Map<String, dynamic>);
   }
 
   @override
@@ -70,9 +74,9 @@ class ApiEquipamentosRepository implements EquipamentosRepository {
     final resposta = await api.patchAutenticado(
       '/equipamentos/$id',
       _token(),
-      dados.toJson(),
+      adapter.toApi(dados),
     );
-    return Equipamento.fromJson(resposta as Map<String, dynamic>);
+    return adapter.fromApi(resposta as Map<String, dynamic>);
   }
 
   @override
