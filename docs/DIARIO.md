@@ -68,7 +68,17 @@ criar nova funcionalidade.
 
 ### Padrões não aplicados
 
-Observer foi aplicado ao evento real de encerramento de manutenção. O publicador notifica dois interessados: libera o equipamento relacionado e registra o encerramento no log. Adapter, Decorator, Composite e uma unidade transacional completa continuam não aplicados porque o projeto não possui, no momento, integração externa, comportamento transversal, hierarquia de equipamentos ou uma operação que exija essas abstrações.
+Observer foi aplicado ao evento real de encerramento de manutenção. O publicador notifica dois interessados: libera o equipamento relacionado e registra o encerramento no log. Decorator, Composite e uma unidade transacional completa continuam não aplicados porque não há, no recorte atual, comportamento transversal, hierarquia de equipamentos ou uma operação que exija essas abstrações.
+
+### Adapter no cliente Flutter — Encontro 13
+
+- **Problema:** o aplicativo Flutter recebia mapas JSON da API de equipamentos e conhecia diretamente os nomes do contrato externo, como `data_aquisicao` e `id_categoria`. A conversão também estava distribuída entre o model e o repository.
+- **Decisão:** criar `EquipamentoApiAdapter` em `flutter_app/lib/adapters/equipamento_api_adapter.dart`. Ele traduz respostas, filtros e dados de criação/edição da API para os modelos e contratos internos do aplicativo.
+- **Integração:** `ApiEquipamentosRepository` injeta o Adapter e o utiliza nos fluxos de listagem, criação e atualização. Telas e Services continuam usando `Equipamento` e `EquipamentoInput` sem conhecer o JSON externo.
+- **Teste:** `flutter_app/test/equipamento_api_adapter_test.dart` verifica a tradução da resposta, do payload de criação e dos filtros.
+- **Evidência:** `git grep -n "data_aquisicao\|id_categoria" -- flutter_app/lib flutter_app/test` concentra os campos externos no Adapter e nos testes do contrato.
+- **Troca da fonte:** se a API mudar os nomes ou o formato dos campos, somente o Adapter e seus testes devem ser ajustados; o domínio do Flutter e as telas permanecem com o mesmo contrato.
+- **Limite:** o Adapter cobre o contrato de equipamentos nesta atividade. Autenticação e manutenções permanecem nos componentes existentes para não ampliar o escopo do encontro.
 
 ### Evidência de testes
 
