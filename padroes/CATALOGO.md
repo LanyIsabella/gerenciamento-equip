@@ -26,5 +26,5 @@ Este arquivo acompanha a aplicação dos padrões no domínio de equipamentos e 
 
 Não criar esses padrões apenas para preencher o catálogo. Uma aplicação futura precisa nascer de uma necessidade real de equipamentos, categorias, usuários ou manutenções.
 
-O Adapter foi aplicado como parte do Encontro 13; sua decisão e seu limite
-estão registrados em [docs/DIARIO.md](../docs/DIARIO.md).
+O Adapter foi aplicado para isolar o contrato externo da API de equipamentos,
+mantendo o restante do aplicativo dependente apenas dos modelos internos.

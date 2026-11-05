@@ -15,7 +15,7 @@ Este documento registra os padrões identificados ou aplicados no domínio de us
 | Service Layer | Arquitetural | Mantém as regras de negócio fora dos Controllers e dos Repositories. | Casos de uso de equipamentos e manutenções. | `backend/app/equipamentos/service.py` e `backend/app/manutencoes/service.py`. |
 | Injeção de Dependência | Idioma/framework | Entrega Services, Repositories e políticas prontas para cada fluxo. | Dependências do FastAPI com `Depends`. | `backend/app/*/dependencias.py`. |
 
-### Adapter — Encontro 13
+### Adapter
 
 O `EquipamentoApiAdapter` é a aplicação do Adapter no projeto. Ele fica entre o
 `ApiEquipamentosRepository` e o contrato JSON externo da API. Por fora, oferece
