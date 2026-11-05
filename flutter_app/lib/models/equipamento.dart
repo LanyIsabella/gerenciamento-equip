@@ -3,6 +3,13 @@ class CategoriaResumo {
   final String nome;
 
   const CategoriaResumo({required this.id, required this.nome});
+
+  factory CategoriaResumo.fromJson(Map<String, dynamic> json) {
+    return CategoriaResumo(
+      id: json['id'] as int,
+      nome: json['nome'] as String,
+    );
+  }
 }
 
 class UsuarioResumo {
@@ -45,6 +52,23 @@ class Equipamento {
     required this.categoria,
     required this.responsavel,
   });
+
+  factory Equipamento.fromJson(Map<String, dynamic> json) {
+    return Equipamento(
+      id: json['id'] as int,
+      nome: json['nome'] as String,
+      descricao: json['descricao'] as String,
+      dataAquisicao: json['data_aquisicao'] as String,
+      patrimonio: json['patrimonio'] as String,
+      status: json['status'] as String,
+      categoria: CategoriaResumo.fromJson(
+        json['categoria'] as Map<String, dynamic>,
+      ),
+      responsavel: UsuarioResumo.fromJson(
+        json['responsavel'] as Map<String, dynamic>,
+      ),
+    );
+  }
 }
 
 class EquipamentoInput {
@@ -65,4 +89,16 @@ class EquipamentoInput {
     required this.idCategoria,
     this.idResponsavel,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'nome': nome,
+      'descricao': descricao,
+      'data_aquisicao': dataAquisicao,
+      'patrimonio': patrimonio,
+      'status': status,
+      'id_categoria': idCategoria,
+      if (idResponsavel != null) 'id_responsavel': idResponsavel,
+    };
+  }
 }

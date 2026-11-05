@@ -8,18 +8,6 @@ from typing import Protocol
 logger = logging.getLogger(__name__)
 
 
-# Código anterior, antes do Observer:
-#
-# manutencao = manutencao_service.atualizar(...)
-# equipamento_service.atualizar_status_por_manutencao(
-#     manutencao.id_equipamento,
-#     "Ativo",
-# )
-# logger.info("Manutenção encerrada: %s", manutencao.id)
-#
-# O fluxo conhecia diretamente cada reação ao encerramento. Isso não era
-# funcional para adicionar ou remover interessados sem alterar a operação
-# principal, além de concentrar efeitos colaterais em um único método.
 @dataclass(frozen=True)
 class ManutencaoEncerrada:
     """Evento publicado quando uma manutenção passa para concluída."""

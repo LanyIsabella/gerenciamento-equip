@@ -8,23 +8,6 @@ from app.observer.avisos import (
 from .service import AtualizarManutencaoService
 
 
-# Código anterior, antes da Facade:
-#
-# @router.patch("/{id_manutencao}/encerrar")
-# def encerrar(id_manutencao, dados, manutencao_service, equipamento_service):
-#     manutencao = manutencao_service.atualizar(
-#         id_manutencao,
-#         {"status": "Concluída", "data_conclusao": dados.data_conclusao},
-#     )
-#     equipamento_service.atualizar(
-#         manutencao.id_equipamento,
-#         {"status": "Ativo"},
-#     )
-#     return manutencao
-#
-# A coordenação de duas entidades ficava no Controller. Isso não era funcional
-# para reutilização e testes do caso de uso: a camada HTTP conhecia a sequência
-# de operações e poderia deixá-la incompleta em outro ponto de entrada.
 class EncerrarManutencaoFacade:
     """Coordena o encerramento da manutenção e a liberação do equipamento."""
 
