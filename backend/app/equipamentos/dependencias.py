@@ -1,4 +1,5 @@
 from app.database import get_db
+from app.repository_decorators import RepositorioComLog
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -12,8 +13,20 @@ from .service import (
 )
 
 
+# Código anterior, antes da Injeção de Dependência:
+#
+# @router.post("/")
+# def criar(dados):
+#     session = SessionLocal()
+#     repositorio = EquipamentoRepository(session)
+#     service = CadastroEquipamentoService(repositorio)
+#     return service.cadastrar(usuario_atual, **dados.model_dump())
+#
+# Cada endpoint construía manualmente sessão, Repository e Service. Isso não
+# era funcional para trocar implementações ou testar com doubles, pois as
+# dependências concretas ficavam presas ao Controller.
 def obter_repositorio(session: Session = Depends(get_db)) -> EquipamentoRepository:
-    return EquipamentoRepository(session)
+    return RepositorioComLog(EquipamentoRepository(session))
 
 
 def obter_service(

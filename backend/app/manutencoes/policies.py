@@ -14,6 +14,19 @@ if TYPE_CHECKING:
     from app.usuarios.models import Usuario
 
 
+# Código anterior, antes da Strategy:
+#
+# def cadastrar(self, dados, usuario_atual):
+#     if usuario_atual is None or usuario_atual.cargo not in {
+#         CargoUsuario.ADMINISTRADOR,
+#         CargoUsuario.TECNICO,
+#     }:
+#         raise ResponsavelManutencaoInvalido()
+#     return self.repositorio.cadastrar(dados)
+#
+# A autorização ficava acoplada ao caso de uso. Isso não era funcional para
+# vários fluxos de manutenção, pois a mesma regra precisaria ser copiada em
+# cadastro, atualização e outros consumidores.
 class PoliticaManutencao:
     """Strategy de autorização por cargo para manutenções."""
 
@@ -35,6 +48,18 @@ def carregar_regras() -> dict:
         return json.load(arquivo)
 
 
+# Código anterior, antes da Factory Method:
+#
+# if dados["tipo"] == TipoManutencao.PREVENTIVA.value:
+#     regras = config["manutencoes"]["tipos"]["Preventiva"]
+# elif dados["tipo"] == TipoManutencao.CORRETIVA.value:
+#     regras = config["manutencoes"]["tipos"]["Corretiva"]
+# else:
+#     raise RegraManutencaoInvalida("Tipo de manutenção desconhecido")
+#
+# A seleção e a criação da regra ficavam espalhadas no Service. Isso não era
+# funcional para adicionar novos tipos: cada consumidor precisaria ganhar mais
+# condicionais e conhecer a forma de configuração de cada regra.
 @dataclass(frozen=True)
 class RegrasTipoManutencao:
     """Objeto criado pela Factory Method para uma regra de tipo."""

@@ -6,6 +6,7 @@ from app.observer.avisos import (
     PublicadorManutencaoEncerrada,
     RegistrarEncerramentoNoLog,
 )
+from app.repository_decorators import RepositorioComLog
 from app.usuarios.repository import UsuarioRepository
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -21,16 +22,30 @@ from .service import (
 )
 
 
+# Código anterior, antes da Injeção de Dependência:
+#
+# def encerrar(id_manutencao, dados):
+#     session = SessionLocal()
+#     manutencao_service = AtualizarManutencaoService(
+#         ManutencaoRepository(session),
+#         EquipamentoRepository(session),
+#         UsuarioRepository(session),
+#     )
+#     return EncerrarManutencaoFacade(manutencao_service, ...).executar(...)
+#
+# A montagem manual espalhava criação de objetos e sessões pelos endpoints.
+# Isso não era funcional para controlar o ciclo de vida das dependências e
+# substituir componentes durante os testes.
 def obter_repositorio(session: Session = Depends(get_db)) -> ManutencaoRepository:
-    return ManutencaoRepository(session)
+    return RepositorioComLog(ManutencaoRepository(session))
 
 
 def obter_repositorio_equipamentos(session: Session = Depends(get_db)) -> EquipamentoRepository:
-    return EquipamentoRepository(session)
+    return RepositorioComLog(EquipamentoRepository(session))
 
 
 def obter_repositorio_usuarios(session: Session = Depends(get_db)) -> UsuarioRepository:
-    return UsuarioRepository(session)
+    return RepositorioComLog(UsuarioRepository(session))
 
 
 def _dependencias(repositorio=Depends(obter_repositorio), equipamento_repositorio=Depends(obter_repositorio_equipamentos), usuario_repositorio=Depends(obter_repositorio_usuarios)):
