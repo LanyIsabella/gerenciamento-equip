@@ -70,6 +70,11 @@ class FakeEquipamentosRepository implements EquipamentosRepository {
   }
 
   @override
+  Future<Equipamento> buscarPorId(int id) async {
+    return dados.firstWhere((item) => item.id == id);
+  }
+
+  @override
   Future<Equipamento> atualizar(int id, EquipamentoInput dados) async {
     final atualizado = equipamento(id);
     this.dados =
@@ -99,6 +104,11 @@ class FakeManutencoesRepository implements ManutencoesRepository {
     final criada = manutencao('Pendente');
     this.dados = [...this.dados, criada];
     return criada;
+  }
+
+  @override
+  Future<Manutencao> buscarPorId(int id) async {
+    return dados.firstWhere((item) => item.id == id);
   }
 
   @override

@@ -36,6 +36,9 @@ class FakeEquipamentosRepository implements EquipamentosRepository {
       throw UnimplementedError();
 
   @override
+  Future<Equipamento> buscarPorId(int id) async => (await listar()).first;
+
+  @override
   Future<Equipamento> atualizar(int id, EquipamentoInput dados) =>
       throw UnimplementedError();
 
