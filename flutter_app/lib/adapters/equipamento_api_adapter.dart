@@ -5,6 +5,20 @@ import '../models/equipamento.dart';
 /// Somente este adaptador conhece os nomes dos campos enviados pela API de
 /// equipamentos. O restante do aplicativo trabalha com seus próprios nomes e
 /// modelos.
+// Código anterior, antes do Adapter:
+//
+// return (resposta as List)
+//     .map((item) => Equipamento.fromJson(item as Map<String, dynamic>))
+//     .toList();
+//
+// E, para criar ou atualizar:
+//
+// return api.postAutenticado('/equipamentos/', token, dados.toJson());
+//
+// O model e o Repository conheciam diretamente o JSON externo. Isso não era
+// funcional para trocar o fornecedor ou alterar nomes de campos, pois a
+// conversão ficava espalhada entre camadas e telas/Services poderiam depender
+// do contrato da API.
 class EquipamentoApiAdapter {
   const EquipamentoApiAdapter();
 
