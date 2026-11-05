@@ -68,7 +68,15 @@ criar nova funcionalidade.
 
 ### Padrões não aplicados
 
-Observer foi aplicado ao evento real de encerramento de manutenção. O publicador notifica dois interessados: libera o equipamento relacionado e registra o encerramento no log. Decorator, Composite e uma unidade transacional completa continuam não aplicados porque não há, no recorte atual, comportamento transversal, hierarquia de equipamentos ou uma operação que exija essas abstrações.
+Observer foi aplicado ao evento real de encerramento de manutenção. O publicador notifica dois interessados: libera o equipamento relacionado e registra o encerramento no log. Composite e uma unidade transacional completa continuam não aplicados porque não há, no recorte atual, hierarquia de equipamentos ou uma operação que exija essas abstrações.
+
+### Decorator para logging dos Repositories
+
+- **Problema:** registrar operações de persistência diretamente em cada método dos Repositories misturaria observabilidade e acesso ao banco, além de exigir repetição.
+- **Decisão:** criar `RepositorioComLog` em `backend/app/repository_decorators.py`. O Decorator guarda qualquer Repository, registra a operação chamada e repassa os mesmos argumentos e a mesma resposta.
+- **Integração:** as dependências do FastAPI passam a montar os Repositories embrulhados. Services, Controllers e Repositories originais não precisam conhecer o logging.
+- **Teste:** `backend/tests/test_repository_decorator.py` usa um Repository falso, verifica o log com `caplog` e confirma que a resposta original é preservada.
+- **Troca da preocupação:** o logging pode ser removido ou substituído alterando apenas o ponto de montagem, sem editar os Repositories.
 
 ### Adapter no cliente Flutter — Encontro 13
 
