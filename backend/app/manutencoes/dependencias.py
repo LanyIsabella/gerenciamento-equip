@@ -21,6 +21,20 @@ from .service import (
 )
 
 
+# Código anterior, antes da Injeção de Dependência:
+#
+# def encerrar(id_manutencao, dados):
+#     session = SessionLocal()
+#     manutencao_service = AtualizarManutencaoService(
+#         ManutencaoRepository(session),
+#         EquipamentoRepository(session),
+#         UsuarioRepository(session),
+#     )
+#     return EncerrarManutencaoFacade(manutencao_service, ...).executar(...)
+#
+# A montagem manual espalhava criação de objetos e sessões pelos endpoints.
+# Isso não era funcional para controlar o ciclo de vida das dependências e
+# substituir componentes durante os testes.
 def obter_repositorio(session: Session = Depends(get_db)) -> ManutencaoRepository:
     return ManutencaoRepository(session)
 
