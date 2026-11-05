@@ -184,6 +184,21 @@ flutter test
 
 Os testes usam um `FakeAuthRepository` e `SharedPreferences.setMockInitialValues`, portanto não dependem de uma API real nem de um aparelho. Eles verificam login, cadastro com entrada automática, armazenamento e restauração do token, expiração do token, erros de e-mail repetido/campo inválido, guarda de rotas, menu e logout.
 
+## 7. Checkpoint do encontro 13
+
+O primeiro ciclo do aplicativo está organizado no checklist abaixo. Os exemplos da aula usam livros; neste projeto, a demonstração usa equipamentos e manutenções.
+
+- [x] **Autenticação:** login, cadastro, sessão protegida e token enviado nos pedidos autenticados. Evidências: `lib/screens/login_screen.dart`, `lib/screens/register_screen.dart`, `lib/services/sessao_service.dart` e os repositories.
+- [x] **CRUD:** o botão de novo equipamento/manutenção cria, o formulário reutilizado edita e o diálogo confirma a exclusão. Evidências: `lib/screens/equipamentos_screen.dart`, `lib/screens/manutencoes_screen.dart` e os formulários em `lib/widgets/`.
+- [x] **Relacionamento com o usuário:** o backend define o responsável pelo usuário autenticado e as listagens respeitam o dono do registro. Evidências: controllers, policies e repositories em `backend/app/`.
+- [x] **Validação nas duas pontas:** os formulários usam `validator` e a API retorna erros `422`/`409`, preservados pelo `ApiClient` e exibidos nos formulários.
+- [x] **Busca e filtros:** a tela envia busca, categoria e status para a API; o parâmetro `busca` pesquisa por nome ou patrimônio. Evidências: `lib/screens/equipamentos_screen.dart`, `lib/services/equipamentos_service.dart` e `lib/adapters/equipamento_api_adapter.dart`.
+- [x] **Feedback visual:** criar, editar, excluir e encerrar exibem `SnackBar`; falhas de validação e da API aparecem no formulário ou na tela.
+
+Para demonstrar o checkpoint, seguir a ordem: entrar, criar, editar, buscar, provocar uma recusa da API, excluir confirmando o diálogo e sair. A entrega deve conter o link deste repositório e, na pasta `flutter_app/`, o comando `flutter test` deve terminar com toda a suíte aprovada.
+
+O consolidado dos requisitos e da verificação está em [docs/encontro-13-programacao-web-iii.md](docs/encontro-13-programacao-web-iii.md).
+
 ## Estrutura principal
 
 ```text
@@ -201,6 +216,7 @@ padroes/       catálogo dos padrões aplicados
 - [Diário de decisões](docs/DIARIO.md): decisões, custos, alternativas e evidências das refatorações.
 - [Consolidado dos requisitos](programacao-web-iii-consolidado.md): requisitos e estrutura necessária de cada encontro.
 - [Checklist de adequação](programacao-web-iii-adequacao-gerenciador-equipamentos.md): atendimento atual, lacunas e evidências por encontro.
+- [Consolidado do encontro 13](docs/encontro-13-programacao-web-iii.md): busca, avisos, checklist e roteiro de entrega do checkpoint.
 
 
 ## Encontro de refatoração

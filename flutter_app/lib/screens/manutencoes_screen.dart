@@ -110,10 +110,10 @@ class _ManutencoesScreenState extends State<ManutencoesScreen> {
           else
             LayoutBuilder(
               builder: (context, constraints) => constraints.maxWidth < 820
-                  ? _Cards(itens, podeGerenciar, _abrirDetalhe, _abrirFormulario,
-                      _excluir, _encerrar)
-                  : _Tabela(itens, podeGerenciar, _abrirDetalhe, _abrirFormulario,
-                      _excluir, _encerrar),
+                  ? _Cards(itens, podeGerenciar, _abrirDetalhe,
+                      _abrirFormulario, _excluir, _encerrar)
+                  : _Tabela(itens, podeGerenciar, _abrirDetalhe,
+                      _abrirFormulario, _excluir, _encerrar),
             ),
         ],
       ),
@@ -179,52 +179,9 @@ class _ManutencoesScreenState extends State<ManutencoesScreen> {
     }
   }
 
-  void _detalhes(Manutencao manutencao) {
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Manutenção #${manutencao.id}'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _Detalhe(
-                  label: 'Equipamento', value: manutencao.equipamento.nome),
-              _Detalhe(label: 'Descrição', value: manutencao.descricao),
-              _Detalhe(label: 'Tipo', value: manutencao.tipo),
-              _Detalhe(label: 'Status', value: manutencao.status),
-              _Detalhe(
-                label: 'Abertura',
-                value: formatarDataBr(manutencao.dataAbertura),
-              ),
-              _Detalhe(
-                label: 'Conclusão',
-                value: formatarDataBr(manutencao.dataConclusao) == ''
-                    ? 'Em aberto'
-                    : formatarDataBr(manutencao.dataConclusao),
-              ),
-              _Detalhe(
-                label: 'Custo',
-                value: 'R\$ ${manutencao.custo.toStringAsFixed(2)}',
-              ),
-              _Detalhe(
-                  label: 'Responsável', value: manutencao.responsavel.nome),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Fechar'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _abrirDetalhe(Manutencao manutencao) {
-    Navigator.pushNamed(context, AppRoutes.manutencaoDetalhe, arguments: manutencao.id);
+    Navigator.pushNamed(context, AppRoutes.manutencaoDetalhe,
+        arguments: manutencao.id);
   }
 
   void _avisar(String mensagem) {

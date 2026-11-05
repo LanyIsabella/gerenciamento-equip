@@ -111,9 +111,10 @@ class _EquipamentosScreenState extends State<EquipamentosScreen> {
           else
             LayoutBuilder(
               builder: (context, constraints) => constraints.maxWidth < 760
-                  ? _Cards(itens, podeGerenciar, _abrirDetalhe, _abrirFormulario,
-                      _excluir)
-                  : _Tabela(itens, podeGerenciar, _abrirDetalhe, _abrirFormulario, _excluir),
+                  ? _Cards(itens, podeGerenciar, _abrirDetalhe,
+                      _abrirFormulario, _excluir)
+                  : _Tabela(itens, podeGerenciar, _abrirDetalhe,
+                      _abrirFormulario, _excluir),
             ),
         ],
       ),
@@ -164,35 +165,9 @@ class _EquipamentosScreenState extends State<EquipamentosScreen> {
     }
   }
 
-  void _detalhes(Equipamento equipamento) {
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(equipamento.nome),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Patrimônio: ${equipamento.patrimonio}'),
-            Text('Categoria: ${equipamento.categoria.nome}'),
-            Text('Aquisição: ${formatarDataBr(equipamento.dataAquisicao)}'),
-            Text('Responsável: ${equipamento.responsavel.nome}'),
-            const SizedBox(height: 10),
-            StatusBadge(equipamento.status),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Fechar'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _abrirDetalhe(Equipamento equipamento) {
-    Navigator.pushNamed(context, AppRoutes.equipamentoDetalhe, arguments: equipamento.id);
+    Navigator.pushNamed(context, AppRoutes.equipamentoDetalhe,
+        arguments: equipamento.id);
   }
 
   void _avisar(String mensagem) {
@@ -276,10 +251,17 @@ class _Filtros extends StatelessWidget {
 class _Tabela extends StatefulWidget {
   final List<Equipamento> itens;
   final bool podeGerenciar;
+  final ValueChanged<Equipamento> detalhes;
   final ValueChanged<Equipamento> editar;
   final ValueChanged<Equipamento> excluir;
 
-  const _Tabela(this.itens, this.podeGerenciar, this.detalhes, this.editar, this.excluir);
+  const _Tabela(
+    this.itens,
+    this.podeGerenciar,
+    this.detalhes,
+    this.editar,
+    this.excluir,
+  );
 
   @override
   State<_Tabela> createState() => _TabelaState();
@@ -609,4 +591,3 @@ class _Erro extends StatelessWidget {
     );
   }
 }
-  final ValueChanged<Equipamento> detalhes;
