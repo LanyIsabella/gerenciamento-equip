@@ -10,6 +10,19 @@ if TYPE_CHECKING:
     from app.usuarios.models import Usuario
 
 
+# Código anterior, antes da Strategy:
+#
+# def cadastrar(self, usuario_atual, **dados):
+#     if usuario_atual is None or usuario_atual.cargo not in {
+#         CargoUsuario.ADMINISTRADOR,
+#         CargoUsuario.GERENTE,
+#     }:
+#         raise ResponsavelEquipamentoInvalido()
+#     return self.repositorio.cadastrar(dados)
+#
+# A regra ficava dentro do Service. Isso funcionava para um único fluxo, mas
+# não era funcional para evolução: cada novo fluxo repetia os cargos permitidos
+# e uma mudança de política exigia editar os consumidores.
 class PoliticaCriacaoEquipamento:
     """Define quem pode ser responsável pela criação de um equipamento.
 

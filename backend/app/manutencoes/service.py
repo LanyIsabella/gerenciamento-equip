@@ -8,6 +8,21 @@ from .policies import FabricaPoliticaTipoManutencao, PoliticaManutencao, carrega
 from .regras import validar_regras_manutencao
 
 
+# Código anterior, antes do Service Layer:
+#
+# @router.post("/")
+# def criar(dados, repositorio, equipamento_repositorio, usuario_repositorio):
+#     equipamento = equipamento_repositorio.buscar_por_id(dados["id_equipamento"])
+#     responsavel = usuario_repositorio.buscar_por_id(dados["id_responsavel"])
+#     if equipamento is None or responsavel is None:
+#         raise HTTPException(status_code=404)
+#     if dados["custo"] < regras["custo_minimo"]:
+#         raise HTTPException(status_code=422)
+#     return repositorio.cadastrar(dados)
+#
+# O Controller conhecia relacionamentos, autorização, regras e persistência.
+# Isso não era funcional para testar cada caso de uso isoladamente e tornava
+# cada endpoint responsável por repetir a mesma coordenação.
 class _BaseManutencaoService:
     def __init__(
         self,
