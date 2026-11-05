@@ -10,22 +10,9 @@ Este documento registra os padrões identificados ou aplicados no domínio de us
 | Factory Method | Criacional | Cria a regra concreta de acordo com o tipo de manutenção sem espalhar condicionais. | Regras de manutenção preventiva e corretiva. | `FabricaPoliticaTipoManutencao`, `RegrasManutencaoPreventiva`, `RegrasManutencaoCorretiva` e `backend/tests/test_manutencao_policies.py`. |
 | Facade | Estrutural | Esconde uma sequência de operações que envolve mais de uma entidade. | Encerramento de manutenção e liberação do equipamento relacionado. | `backend/app/manutencoes/facade.py` e `backend/tests/test_facade.py`. |
 | Observer | Comportamental | Notifica interessados quando uma manutenção é encerrada sem acoplar o publicador aos tipos concretos. | Evento `ManutencaoEncerrada`. | `backend/app/observer/avisos.py` e testes da Facade/Observer. |
-| Adapter | Estrutural | Traduz o contrato externo da API sem expor nomes e formatos JSON ao restante do cliente. | Integração de equipamentos no Flutter. | `flutter_app/lib/adapters/equipamento_api_adapter.dart`, `flutter_app/lib/repositories/equipamentos_repository.dart` e `flutter_app/test/equipamento_api_adapter_test.dart`. |
-| Decorator | Estrutural | Acrescenta comportamento sem alterar o componente embrulhado. | Logging das operações dos Repositories. | `backend/app/repository_decorators.py`, dependências dos módulos e `backend/tests/test_repository_decorator.py`. |
 | Repository | Arquitetural | Isola consultas e persistência atrás de métodos orientados ao domínio. | Equipamentos, manutenções e usuários. | `backend/app/*/repository.py` e `backend/app/repository.py`. |
 | Service Layer | Arquitetural | Mantém as regras de negócio fora dos Controllers e dos Repositories. | Casos de uso de equipamentos e manutenções. | `backend/app/equipamentos/service.py` e `backend/app/manutencoes/service.py`. |
 | Injeção de Dependência | Idioma/framework | Entrega Services, Repositories e políticas prontas para cada fluxo. | Dependências do FastAPI com `Depends`. | `backend/app/*/dependencias.py`. |
-
-### Adapter
-
-O `EquipamentoApiAdapter` é a aplicação do Adapter no projeto. Ele fica entre o
-`ApiEquipamentosRepository` e o contrato JSON externo da API. Por fora, oferece
-os modelos e dados internos do Flutter; por dentro, conhece os nomes externos,
-como `data_aquisicao` e `id_categoria`, além da estrutura dos objetos aninhados.
-
-Essa decisão mantém as telas e os Services independentes do formato da API. Se
-o fornecedor trocar nomes ou formatos, a alteração fica concentrada no Adapter
-e em seus testes.
 
 ## Como os padrões se relacionam
 
@@ -55,6 +42,8 @@ No encerramento de uma manutenção, a sequência é:
 | Corrente de Responsabilidade | As validações atuais são lineares e não formam uma cadeia de handlers independentes. |
 | Composite | Equipamentos e categorias não formam uma hierarquia com operações uniformes para itens e grupos. |
 | Unit of Work completo | A sessão do SQLAlchemy existe, mas os Repositories ainda confirmam suas próprias operações. |
+| Adapter | Não há integração externa ou formato incompatível que precise de isolamento. |
+| Decorator | Não há comportamento transversal necessário que justifique envolver os componentes atuais. |
 
 Esses padrões não devem ser adicionados apenas para aumentar a lista. Qualquer aplicação futura deve responder a uma necessidade concreta do gerenciador.
 

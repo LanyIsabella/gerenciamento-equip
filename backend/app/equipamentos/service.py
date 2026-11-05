@@ -3,20 +3,6 @@ from .policies import PoliticaCriacaoEquipamento
 from .validadores import normalizar_patrimonio
 
 
-# Código anterior, antes do Service Layer:
-#
-# @router.post("/")
-# def criar(dados, repositorio, usuario_atual):
-#     if usuario_atual.cargo not in {CargoUsuario.ADMINISTRADOR, CargoUsuario.GERENTE}:
-#         raise ResponsavelEquipamentoInvalido()
-#     dados["patrimonio"] = normalizar_patrimonio(dados["patrimonio"])
-#     if repositorio.buscar_por_patrimonio(dados["patrimonio"]):
-#         raise PatrimonioJaCadastrado()
-#     return repositorio.cadastrar(dados)
-#
-# Controller, regra de negócio e persistência ficavam misturados. Isso não era
-# funcional para testar e reutilizar os casos de uso sem subir a camada HTTP,
-# além de repetir regras em cada endpoint.
 class CadastroEquipamentoService:
     def __init__(
         self,
