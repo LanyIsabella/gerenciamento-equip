@@ -10,6 +10,7 @@ Este documento registra os padrões identificados ou aplicados no domínio de us
 | Factory Method | Criacional | Cria a regra concreta de acordo com o tipo de manutenção sem espalhar condicionais. | Regras de manutenção preventiva e corretiva. | `FabricaPoliticaTipoManutencao`, `RegrasManutencaoPreventiva`, `RegrasManutencaoCorretiva` e `backend/tests/test_manutencao_policies.py`. |
 | Facade | Estrutural | Esconde uma sequência de operações que envolve mais de uma entidade. | Encerramento de manutenção e liberação do equipamento relacionado. | `backend/app/manutencoes/facade.py` e `backend/tests/test_facade.py`. |
 | Observer | Comportamental | Notifica interessados quando uma manutenção é encerrada sem acoplar o publicador aos tipos concretos. | Evento `ManutencaoEncerrada`. | `backend/app/observer/avisos.py` e testes da Facade/Observer. |
+| Adapter | Estrutural | Traduz o contrato externo da API sem expor nomes e formatos JSON ao restante do cliente. | Integração de equipamentos no Flutter. | `flutter_app/lib/adapters/equipamento_api_adapter.dart`, `flutter_app/lib/repositories/equipamentos_repository.dart` e `flutter_app/test/equipamento_api_adapter_test.dart`. |
 | Repository | Arquitetural | Isola consultas e persistência atrás de métodos orientados ao domínio. | Equipamentos, manutenções e usuários. | `backend/app/*/repository.py` e `backend/app/repository.py`. |
 | Service Layer | Arquitetural | Mantém as regras de negócio fora dos Controllers e dos Repositories. | Casos de uso de equipamentos e manutenções. | `backend/app/equipamentos/service.py` e `backend/app/manutencoes/service.py`. |
 | Injeção de Dependência | Idioma/framework | Entrega Services, Repositories e políticas prontas para cada fluxo. | Dependências do FastAPI com `Depends`. | `backend/app/*/dependencias.py`. |
@@ -42,7 +43,6 @@ No encerramento de uma manutenção, a sequência é:
 | Corrente de Responsabilidade | As validações atuais são lineares e não formam uma cadeia de handlers independentes. |
 | Composite | Equipamentos e categorias não formam uma hierarquia com operações uniformes para itens e grupos. |
 | Unit of Work completo | A sessão do SQLAlchemy existe, mas os Repositories ainda confirmam suas próprias operações. |
-| Adapter | Não há integração externa ou formato incompatível que precise de isolamento. |
 | Decorator | Não há comportamento transversal necessário que justifique envolver os componentes atuais. |
 
 Esses padrões não devem ser adicionados apenas para aumentar a lista. Qualquer aplicação futura deve responder a uma necessidade concreta do gerenciador.
