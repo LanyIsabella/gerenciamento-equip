@@ -25,3 +25,6 @@ Este arquivo acompanha a aplicação dos padrões no domínio de equipamentos e 
 - **Decorator:** não há comportamento transversal necessário que justifique a abstração.
 
 Não criar esses padrões apenas para preencher o catálogo. Uma aplicação futura precisa nascer de uma necessidade real de equipamentos, categorias, usuários ou manutenções.
+
+O Adapter foi aplicado como parte do Encontro 13; sua decisão e seu limite
+estão registrados em [docs/DIARIO.md](../docs/DIARIO.md).
