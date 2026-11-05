@@ -1,4 +1,5 @@
 from app.database import get_db
+from app.repository_decorators import RepositorioComLog
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -25,7 +26,7 @@ from .service import (
 # era funcional para trocar implementações ou testar com doubles, pois as
 # dependências concretas ficavam presas ao Controller.
 def obter_repositorio(session: Session = Depends(get_db)) -> EquipamentoRepository:
-    return EquipamentoRepository(session)
+    return RepositorioComLog(EquipamentoRepository(session))
 
 
 def obter_service(
