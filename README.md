@@ -184,6 +184,25 @@ flutter test
 
 Os testes usam um `FakeAuthRepository` e `SharedPreferences.setMockInitialValues`, portanto não dependem de uma API real nem de um aparelho. Eles verificam login, cadastro com entrada automática, armazenamento e restauração do token, expiração do token, erros de e-mail repetido/campo inválido, guarda de rotas, menu e logout.
 
+## 6.1. Testes do projeto
+
+Os testes de endpoint usam um banco SQLite exclusivo em `backend/teste.db`, criado e limpo pela fixture de cada teste. Eles atravessam a API real pelo `TestClient`, sem iniciar `uvicorn` e sem abrir o banco de desenvolvimento.
+
+Na raiz do projeto:
+
+```bash
+poetry run pytest
+```
+
+Para testar o aplicativo Flutter:
+
+```bash
+cd flutter_app
+flutter test
+```
+
+Os dois comandos rodam sem API ligada, sem `flutter run` e sem navegador. O teste de widget usa uma resposta HTTP falsa, mas mantém a tela, o service, o repository e o `ApiClient` reais.
+
 ## 7. Checkpoint do encontro 13
 
 O primeiro ciclo do aplicativo está organizado no checklist abaixo. Os exemplos da aula usam livros; neste projeto, a demonstração usa equipamentos e manutenções.
@@ -217,6 +236,7 @@ padroes/       catálogo dos padrões aplicados
 - [Consolidado dos requisitos](programacao-web-iii-consolidado.md): requisitos e estrutura necessária de cada encontro.
 - [Checklist de adequação](programacao-web-iii-adequacao-gerenciador-equipamentos.md): atendimento atual, lacunas e evidências por encontro.
 - [Consolidado do encontro 13](docs/encontro-13-programacao-web-iii.md): busca, avisos, checklist e roteiro de entrega do checkpoint.
+- [Consolidado do encontro 14](docs/encontro-14-programacao-web-iii.md): testes de endpoint e widget, rubrica, cronograma e preparação para publicação.
 
 
 ## Encontro de refatoração
